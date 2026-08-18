@@ -1,0 +1,68 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Loore",
+  "description": "Глаза и уши твоего AI-агента в Instagram: данные, разбор, скачивание — через MCP и REST.",
+  "colors": {
+    "primary": "#0F6E5C",
+    "light": "#3BC9A6",
+    "dark": "#0B4E42"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Документация",
+        "groups": [
+          {
+            "group": "Начало",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Подключение",
+            "pages": [
+              "clients/overview",
+              "clients/cli",
+              "clients/apps"
+            ]
+          },
+          {
+            "group": "Как это устроено",
+            "pages": [
+              "mcp/tools",
+              "concepts/skills",
+              "concepts/errors",
+              "concepts/pricing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "openapi.json"
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Кабинет",
+        "href": "https://app.loore.ai"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Получить ключ",
+      "href": "https://loore.ai/register"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://loore.ai"
+    }
+  }
+}

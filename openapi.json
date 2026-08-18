@@ -1,0 +1,4564 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Loore Public API",
+    "version": "1.0.0",
+    "description": "The Loore public API. Every call is authenticated with a Bearer API key (create one in Settings → MCP) and scoped to the key owner's account. LLM-spending stages meter the owner's credits exactly like the in-app flow. Responses use the shared envelope `{ status, error?, details?, result? }`."
+  },
+  "servers": [
+    {
+      "url": "https://mcp.loore.ai",
+      "description": "Canonical Loore agent API"
+    },
+    {
+      "url": "https://api.loore.ai/api",
+      "description": "Legacy app-origin entrance"
+    }
+  ],
+  "paths": {
+    "/v1/ig-analytics": {
+      "post": {
+        "operationId": "ig_analytics",
+        "summary": "ig_analytics",
+        "description": "Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). Your own agent reads these numbers and writes the analysis — Loore returns the data, not a narrative.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "description": "Public Instagram handle, e.g. @brand"
+                  }
+                },
+                "required": [
+                  "handle"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kb-search": {
+      "post": {
+        "operationId": "kb_search",
+        "summary": "kb_search",
+        "description": "Search the user's OWN knowledge base for passages relevant to a query, to ground your answer in their uploaded documents. Returns the top matching chunks (content + source file id + similarity distance). Read-only retrieval over the user's own data.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The text to search the knowledge base for (the question or topic)"
+                  },
+                  "topK": {
+                    "type": "number",
+                    "description": "Max number of chunks to return (default 5, capped at 20)"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reference-save": {
+      "post": {
+        "operationId": "reference_save",
+        "summary": "reference_save",
+        "description": "Save the user's supplied images as visual reference assets — face photos, cover-style references, or a logo — to reuse in future image generations. Send 1-5 images per call as data: URLs under a single kind (face | style | logo); each is validated and stored (an identical image sent again is reused, not duplicated). Set replaceExisting to first clear all existing assets of that kind. Returns a per-image outcome (saved | reused | rejected) plus the active counts per kind afterwards.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "face | style | logo"
+                  },
+                  "images": {
+                    "type": "array",
+                    "description": "1-5 images, each { dataUrl: data:-URL image, label?: short note }"
+                  },
+                  "replaceExisting": {
+                    "type": "boolean",
+                    "description": "Clear all existing assets of this kind first (optional, default false)"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "images"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reference-list": {
+      "post": {
+        "operationId": "reference_list",
+        "summary": "reference_list",
+        "description": "List the user's stored visual reference assets (id, kind, label, dimensions, size, created/last-used timestamps), newest first. Optionally narrow to one kind (face | style | logo). Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "Narrow to one kind: face | style | logo (optional)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reference-delete": {
+      "post": {
+        "operationId": "reference_delete",
+        "summary": "reference_delete",
+        "description": "Delete the user's stored reference assets. Pass EXACTLY ONE selector per call: id (one asset), ids (a batch of up to 50 asset ids in ONE call), kind (every stored asset of that kind: face | style | logo), or all=true (every stored reference asset). When the user asks to delete several or ALL references («удали все»), make ONE call with ids, kind, or all — NEVER loop one-by-one with id. Selector choice: the user points at specific listed items they can see («удали эти», «все 9») → ids from the listing; the user means the current category («удали все лица») → kind; all=true ONLY on explicit GLOBAL intent covering every kind («удали вообще все референсы»). Idempotent: an unknown, foreign, or already-deleted id is reported as deleted=false, never an error. Returns exact counts (deleted / notFound, per-id results for ids) plus the remaining active counts per kind, so report the resulting state precisely.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "One reference asset id to delete"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Up to 50 reference asset ids to delete in one call"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "description": "Delete every stored asset of this kind: face | style | logo"
+                  },
+                  "all": {
+                    "type": "boolean",
+                    "description": "true = delete every stored reference asset the user has"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/artifact-list": {
+      "post": {
+        "operationId": "artifact_list",
+        "summary": "artifact_list",
+        "description": "List the images the user has generated (covers and carousel slides), newest first, for their gallery. Each item carries its image link, kind (cover | carousel_slide), title, the group id that ties one batch together, its position within that group, and when it was created. Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "Narrow to one kind: cover | carousel_slide (optional)"
+                  },
+                  "limit": {
+                    "type": "number",
+                    "description": "Page size, 1-50 (optional, default 20)"
+                  },
+                  "cursor": {
+                    "type": "string",
+                    "description": "Opaque cursor from a previous page (optional)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/miner-search": {
+      "post": {
+        "operationId": "miner_search",
+        "summary": "miner_search",
+        "description": "Find what's going viral in an Instagram niche: start a background scan that mines top public creators and their best-performing reels for a niche you name, building the user's competitive base to analyze. Provide EXACTLY ONE of niche_query or run_id per call — never both, never neither. Pass niche_query (a niche or topic phrase, 3-100 chars) to START a scan — it returns a run id and a queued status (if a scan is already in progress you get THAT pending run back instead of a new one). Pass that run id back as run_id to CHECK the scan's progress until it is done. max_profiles bounds how many creators to enrich (integer 1-300, default 10; only valid with niche_query — pass the exact number the user asked for, e.g. 50). The per-scan cap is 300 on EVERY plan; the real ceiling is the user's daily research allowance (a big scan may exceed today's budget — the returned note says how many can be collected today, so scan in batches). A single scan of one niche often yields fewer than asked: to reach N, run FOLLOW-UP scans with DIFFERENT niche phrasings (synonyms, sub-niches, adjacent topics) — never repeat the identical niche_query expecting new results.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "niche_query": {
+                    "type": "string",
+                    "description": "Niche/topic phrase to scan for, 3-100 chars (start mode; mutually exclusive with run_id)"
+                  },
+                  "run_id": {
+                    "type": "string",
+                    "description": "A run id from a prior scan to check its status (poll mode; mutually exclusive with niche_query)"
+                  },
+                  "max_profiles": {
+                    "type": "number",
+                    "description": "How many creators to enrich, integer, min 1, max 300 (optional, default 10; start mode only). Pass the exact count the user asked for. The cap is 300 on every plan; the daily allowance is the real ceiling (an oversized ask returns how many fit today)."
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/miner-fired-reels": {
+      "post": {
+        "operationId": "miner_fired_reels",
+        "summary": "miner_fired_reels",
+        "description": "List which of the user's tracked competitor reels fired recently — clips that suddenly outperformed their author's usual numbers — newest fire first. Each item carries the reel's link, author handle, play count, plays-per-hour velocity (null when the publish time is unknown), a short caption excerpt, and when it fired. limit caps the count (1-20, default 20). Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "number",
+                    "description": "Max reels to return, 1-20 (optional, default 20)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/miner-fired-posts": {
+      "post": {
+        "operationId": "miner_fired_posts",
+        "summary": "miner_fired_posts",
+        "description": "List which of the user's tracked competitor POSTS fired recently — photos and carousels whose likes suddenly outran their author's usual numbers — newest fire first. Each item carries the post's link, author handle, likes, comments, whether it is a photo or a carousel, a short caption excerpt, and when it fired. Posts have no view count, so none is reported. Use miner_fired_reels for reels. limit caps the count (1-20, default 20). Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "number",
+                    "description": "Max posts to return, 1-20 (optional, default 20)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/miner-insights": {
+      "post": {
+        "operationId": "miner_insights",
+        "summary": "miner_insights",
+        "description": "Read everything the user has mined about a niche. Returns the competitor roster (competitors: the actual mined accounts, biggest first — handle, follower count, name, category, verified, how many reels each appeared in, whether tracked), the top reels by play count (topReels: each with a link, author handle, plays/likes/comments, publish time, and caption excerpt), the base totals, the velocity outliers (reels far above their author's median), the busiest posting hours (in UTC), and the fastest-growing tracked accounts — all RAW numbers for your own agent to analyze. Call this after a miner_search scan reaches status 'done' to LIST the competitors and their best reels. roster_limit (1-300, optional, default 20) bounds how many competitor rows come back — leave it default for a normal look; pass a high value (up to 300) ONLY when building a full competitor REPORT that needs the whole base. No new mining and no credit spend — read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roster_limit": {
+                    "type": "number",
+                    "description": "Max competitor rows to return, 1-300 (optional, default 20; raise only for a full report)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/library-save-search": {
+      "post": {
+        "operationId": "library_save_search",
+        "summary": "library_save_search",
+        "description": "Keep a search on the user's own library shelf so they can return to it later: what was searched (accounts, reels, posts or hashtags) and the exact query. Saving the same query again does not duplicate it — it counts the revisit. Optionally file it under a folder name such as a niche; the folder is created on first use.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "accounts | reels | posts | hashtags"
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "The query exactly as the user phrased it"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Folder name to file it under (optional)"
+                  },
+                  "result_count": {
+                    "type": "number",
+                    "description": "How many results it returned (optional)"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/library-save-item": {
+      "post": {
+        "operationId": "library_save_item",
+        "summary": "library_save_item",
+        "description": "Put one thing aside on the user's library shelf: a profile, a reel, a post or a hashtag. Pass the handle, the shortcode or the hashtag as the reference. Add a title the user will recognise and a note on why it was kept. Keeping the same thing again refreshes it instead of duplicating it.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "description": "profile | reel | post | hashtag"
+                  },
+                  "ref": {
+                    "type": "string",
+                    "description": "Handle, media shortcode, or hashtag name"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Label shown in the list (optional)"
+                  },
+                  "note": {
+                    "type": "string",
+                    "description": "Why this was kept (optional)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Folder name to file it under (optional)"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "ref"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/library-list": {
+      "post": {
+        "operationId": "library_list",
+        "summary": "library_list",
+        "description": "Read the user's own library: the searches they kept (with how often they returned to each one and when it last ran) and the profiles, reels, posts and hashtags they put aside with their notes. Use this before searching anew — the user may already have what they need. Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "what": {
+                    "type": "string",
+                    "description": "searches | items | both (optional, default both)"
+                  },
+                  "limit": {
+                    "type": "number",
+                    "description": "Max rows per section, 1-50 (optional, default 20)"
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/miner-track": {
+      "post": {
+        "operationId": "miner_track",
+        "summary": "miner_track",
+        "description": "Add a competitor to the user's daily tracking so their new reels are watched for breakouts. Give an Instagram handle or profile link; the account must already be in the user's mined base (run a niche scan with miner_search first if it isn't). Respects the user's plan tracking cap and is reversible. Returns whether tracking is now on, or a reason it isn't (not in the base, or the tracking cap is reached).",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "author_handle_or_url": {
+                    "type": "string",
+                    "description": "The competitor's Instagram handle (e.g. @brand) or profile link"
+                  }
+                },
+                "required": [
+                  "author_handle_or_url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-stories": {
+      "post": {
+        "operationId": "ig_stories",
+        "summary": "ig_stories",
+        "description": "Look up a public Instagram account's currently-live Stories (metadata only — no media is downloaded). Returns each story's posted time, media kind (image/video), duration, any @mentions, and a link-sticker URL when present, plus the total count. Honest-empty when the account has no active stories or is private.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Public Instagram handle, e.g. @brand"
+                  }
+                },
+                "required": [
+                  "username"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-highlights": {
+      "post": {
+        "operationId": "ig_highlights",
+        "summary": "ig_highlights",
+        "description": "List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a cover image URL when available. Read-only; honest-empty for an account with no highlights or a private one.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Public Instagram handle, e.g. @brand"
+                  }
+                },
+                "required": [
+                  "username"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-post-engagement": {
+      "post": {
+        "operationId": "ig_post_engagement",
+        "summary": "ig_post_engagement",
+        "description": "Read the engagement depth of a single public post or reel: its like/comment totals, a sample of up to 20 accounts who liked it, and the top comment threads (up to 10, each with up to 3 replies taken from the thread's preview — not the full reply history; text trimmed). Accepts a post/reel URL or its shortcode. Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "post_url_or_code": {
+                    "type": "string",
+                    "description": "A post/reel link (instagram.com/p/… or /reel/…) or just its shortcode"
+                  }
+                },
+                "required": [
+                  "post_url_or_code"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-music-trends": {
+      "post": {
+        "operationId": "ig_music_trends",
+        "summary": "ig_music_trends",
+        "description": "Search Instagram's audio library for trending sounds to use in Reels. Returns up to 15 tracks for a query — each with title, artist, duration in seconds, an id you can reference, and two marketer signals: reels_usage shows how many reels use each sound (e.g. '322K reels') and trending flags whether it's trending in Reels right now. Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "What kind of sound to find, e.g. 'upbeat pop 2026'"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-followers-sample": {
+      "post": {
+        "operationId": "ig_followers_sample",
+        "summary": "ig_followers_sample",
+        "description": "Fetch a SAMPLE (first page, up to 30) of a public account's followers OR the accounts it follows — handles plus display names. This is a sample, not the full list; compare two accounts' samples to reason about audience overlap yourself. Read-only.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Public Instagram handle, e.g. @brand"
+                  },
+                  "which": {
+                    "type": "string",
+                    "description": "Which edge to sample — exactly \"followers\" or \"following\""
+                  }
+                },
+                "required": [
+                  "username",
+                  "which"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-request": {
+      "post": {
+        "operationId": "ig_request",
+        "summary": "ig_request",
+        "description": "Advanced Instagram data lookup for anything the dedicated tools don't already cover — pick one of the supported endpoints and pass its parameters. Read-only lookups only; results are size-capped. Use the dedicated tools first; reach for this for the long tail.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string",
+                    "description": "Which lookup to run. One of: user-by-username (Full public profile by @handle (bio, counts, category, external link).); user-by-id (Full public profile by numeric account id.); web-profile-info (Web profile payload for a handle (profile fields + first grid of posts).); user-about (Account 'about this account' transparency info (country, join date, past names).); user-related-profiles (Instagram's 'related / suggested' accounts for a profile.); user-medias (A public account's recent feed posts (metadata).); user-clips (A public account's recent reels (metadata).); user-tagged-medias (Public posts an account has been tagged in.); hashtag-info (Hashtag summary (media count, preview of top posts).); hashtag-medias-top (Top posts for a hashtag.); hashtag-medias-recent (Most recent posts for a hashtag.); location-search (Places near a latitude/longitude coordinate.); location-by-id (Details of a place/location by id.); location-medias-top (Top posts tagged at a location.); search-users (Search accounts by name or keyword.); search-places (Search places/locations by name.); search-hashtags (Search hashtags by keyword.); topsearch (Blended top search (accounts, hashtags, places) for a keyword.); media-by-code (A single post or reel by its shortcode.); media-by-id (A single post or reel by its media id.); media-oembed (oEmbed metadata for a public post URL (author, thumbnail, caption).); media-comments (Top-level comments on a post.); share-by-url (Resolve any Instagram share URL to the object it points at.); track-by-id (An audio track / original sound by its id.); highlight-by-id (The items inside a profile's highlight tray by id.); ig-fbsearch-places (Search places, optionally near a latitude/longitude.); ig-fbsearch-places-v2 (Search places by name (alternate source).); ig-fbsearch-places-v3 (Search places by name (current source).); ig-fbsearch-topsearch-hashtags (Suggest hashtags for a keyword (top search).); ig-hashtag-by-name (Hashtag summary by name (volume, preview).); ig-highlight-by-url (A story highlight from its link.); ig-location-by-id (Details of a place/location by id.); ig-location-guides (Curated guides for a location.); ig-location-medias-recent (Most recent posts tagged at a location.); ig-location-medias-top (Top posts tagged at a location.); ig-media-by-id (A single post or reel by its media id.); ig-media-by-url (A single post or reel from its link.); ig-media-code-from-pk (Convert a media pk to its shortcode.); ig-media-comment-offensive (Check whether a comment reads as offensive (moderation).); ig-media-comments-replies (The replies in a single comment thread on a post.); ig-media-info-by-code (A single post or reel by shortcode (clean 200/404).); ig-media-info-by-id (A single post or reel by media id (clean 200/404).); ig-media-info-by-url (A single post or reel from its link (clean 200/404).); ig-media-insight (Business insight metrics for a post (reach / impressions).); ig-media-likers (Accounts that liked a post (no paging).); ig-media-likers-v1 (Accounts that liked a post.); ig-media-likers-v3 (Accounts that liked a post (ranked, capped ~200).); ig-media-pk-from-code (Convert a shortcode to its media pk.); ig-media-pk-from-url (Resolve a post link to its media pk.); ig-media-template (The structural template of a post.); ig-media-user (The author of a post by media id.); ig-search-music (Search the audio library by keyword.); ig-share-by-code (Resolve a share code (stories / highlights) to the object it points at.); ig-share-reel-by-url (Resolve a reel share link to the reel it points at.); ig-story-by-id (A single story by its id.); ig-story-by-id-v2 (A single story by its id (alternate source).); ig-story-by-url (A single story from its link.); ig-story-by-url-v2 (A single story from its link (alternate source).); ig-user (Public profile by @handle (lightweight fast variant).); ig-user-about ('About this account' transparency panel by id: country, join date, former usernames.); ig-user-by-id (Full public profile by numeric account id.); ig-user-by-url (Full public profile from a link to the account.); ig-user-by-username (Full public profile by @handle.); ig-user-explore-businesses-by-id (Recommended similar business accounts for a profile (competitor/niche discovery).); ig-user-highlights (An account's Story Highlights tray by numeric account id.); ig-user-highlights-by-username (An account's Story Highlights tray by @handle.); ig-user-medias-pinned (An account's pinned posts (its chosen top posts).); ig-user-search-followers (Search WITHIN an account's followers for a keyword (is X a follower of Y).); ig-user-search-following (Search WITHIN the accounts a profile follows for a keyword.); ig-user-stories (An account's currently-active stories by numeric account id (metadata, alternate source).); ig-user-stories-by-username (An account's currently-active stories by @handle (metadata).); ig-user-stories-v1 (An account's currently-active stories by numeric account id (metadata).); ig-user-suggested-profiles (Suggested / related accounts for a profile.); ig-user-web-profile-info (Public profile plus the first grid of posts, by numeric account id.); ig-userstream-by-id (Profile plus its content stream in one lookup, by numeric account id.); ig-userstream-by-username (Profile plus its content stream in one lookup, by @handle.); ig-comment-likers-chunk (Accounts that liked a comment, one page at a time.); ig-fbsearch-accounts (Search accounts by name or keyword.); ig-fbsearch-accounts-v3 (Search accounts by name or keyword (current source).); ig-fbsearch-reels (Search reels by keyword (content research).); ig-fbsearch-topsearch (Blended top search for a keyword, page by page.); ig-hashtag-medias-clips-chunk (Reels under a hashtag, one page at a time.); ig-hashtag-medias-top-chunk (Top posts for a hashtag, one page at a time.); ig-location-medias-recent-chunk (Most recent posts at a location, one page at a time.); ig-location-medias-top-chunk (Top posts at a location, one page at a time.); ig-media-clips-metadata (Original sound and music info for up to 10 reels in one lookup (batch).); ig-media-comments-chunk (A page of the comments on a post.); ig-media-comments-infos (Comment counts and preview comments for up to 10 posts in one lookup (batch).); ig-media-usertags (Accounts tagged inside up to 10 posts in one lookup (batch).); ig-search-hashtags (Search hashtags by keyword (current source).); ig-topsearch (Blended top search across accounts, hashtags and places for a keyword.); ig-track-by-canonical-id (An audio track by its canonical id.); ig-user-clips (An account's reels by numeric account id, ranked by views.); ig-user-clips-chunk (An account's reels, one cursor page at a time.); ig-user-clips-v2 (An account's reels by numeric account id (alternate source).); ig-user-followers (A page of an account's followers, by numeric account id.); ig-user-followers-chunk (Full follower extraction for an account, one cursor page at a time.); ig-user-followers-chunk-v1 (An account's followers, one cursor page at a time.); ig-user-followers-g2 (A page of an account's followers, by numeric account id (alternate source).); ig-user-following (A page of the accounts a profile follows, by numeric account id.); ig-user-following-chunk (Full following-list extraction for an account, one cursor page at a time.); ig-user-following-chunk-v1 (The accounts a profile follows, one cursor page at a time.); ig-user-following-g2 (A page of the accounts a profile follows (alternate source).); ig-user-highlights-v2 (An account's Story Highlights tray by numeric account id (alternate source).); ig-user-medias (An account's feed posts (current source).); ig-user-medias-chunk (An account's feed posts, one cursor page at a time.); ig-user-medias-g2 (An account's feed posts, one page at a time.); ig-user-reposts (The posts an account has reposted.); ig-user-tag-medias (Posts an account is tagged in (alternate source).); ig-user-tag-medias-chunk (Posts an account is tagged in, one page at a time.); ig-track-stream-by-id (The feed of posts and reels using an audio track, one page at a time.)"
+                  },
+                  "params": {
+                    "type": "object",
+                    "description": "The parameters for the chosen endpoint as key/value pairs (e.g. { username } or { user_id, amount } or { query }). A batch endpoint's media_ids takes a LIST of ids, e.g. { media_ids: [\"111\", \"222\"] } — pass an array, not a comma-joined string. Unknown params are rejected."
+                  }
+                },
+                "required": [
+                  "endpoint"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/download-instagram-media": {
+      "post": {
+        "operationId": "download_instagram_media",
+        "summary": "download_instagram_media",
+        "description": "Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. Use this when the user wants the FILE itself (to repost/save) — distinct from reading a post's data. Only public posts; delivered privately to the user. One item per call: a reel or a single-photo post (a carousel sends its first item).",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "An Instagram post/reel URL or its shortcode (e.g. https://instagram.com/reel/ABC…)"
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/download-instagram-story": {
+      "post": {
+        "operationId": "download_instagram_story",
+        "summary": "download_instagram_story",
+        "description": "Download and SEND the actual video/photo FILE of an Instagram STORY to the user in this chat. Use this when the user wants the story FILE itself (to repost/save) — distinct from reading a story's data. Only public stories; delivered privately to the user. One story per call.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "A story page link (https://instagram.com/stories/<user>/<id>) or a bare story id."
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/analyze-reel": {
+      "post": {
+        "operationId": "analyze_reel",
+        "summary": "analyze_reel",
+        "description": "Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images (hook/CTA/scene) for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames).",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The Instagram reel URL or its shortcode (e.g. https://instagram.com/reel/ABC…)"
+                  },
+                  "depth": {
+                    "type": "string",
+                    "description": "Analysis tier: \"deep\" (default — full visual + script breakdown) or \"quick\" (metrics + transcript only, cheaper)"
+                  },
+                  "account_hint": {
+                    "type": "string",
+                    "description": "Optional author handle to baseline against when known (fallback only — the resolved author wins)"
+                  }
+                },
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/report-render": {
+      "post": {
+        "operationId": "report_render",
+        "summary": "report_render",
+        "description": "Turn a finished analysis into a BRANDED, ready-to-send report FILE from GENERIC structured content (title, metric tiles, markdown sections + tables) and return its link(s). For an Instagram ACCOUNT audit a dedicated branded HTML audit report exists separately; this tool is for generic structured reports (and an IG-audit PDF when one is explicitly wanted). Pass structured content: a title, optional subtitle + meta (account handle, period), up to 8 headline metric tiles, and 1-12 sections — each with a markdown body (**bold**, *italic*, `code`, - lists) and/or a structured table (columns + rows). The file carries the Loore branding (mascot, wordmark, footer) so a forwarded report advertises the agent. Set format to html, pdf, or both (default both). Fixed credit cost per call. Deliver the returned link to the user as a document — never paste it as raw text.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Report title (1-120 chars)"
+                  },
+                  "subtitle": {
+                    "type": "string",
+                    "description": "Optional subtitle / one-line summary (≤200)"
+                  },
+                  "meta": {
+                    "type": "object",
+                    "description": "Optional header meta: { accountHandle?: ≤64, periodLabel?: ≤64 }"
+                  },
+                  "metrics": {
+                    "type": "array",
+                    "description": "Up to 8 headline tiles, each { label: ≤40, value: ≤24, hint?: ≤60 }"
+                  },
+                  "sections": {
+                    "type": "array",
+                    "description": "1-12 sections, each { heading: ≤80, body_md?: markdown subset ≤8000, table?: { columns: string[≤8], rows: string[][≤40] } }"
+                  },
+                  "footnote": {
+                    "type": "string",
+                    "description": "Optional small footnote line (≤300)"
+                  },
+                  "format": {
+                    "type": "string",
+                    "description": "html | pdf | both (optional, default both)"
+                  }
+                },
+                "required": [
+                  "title",
+                  "sections"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-audit-render": {
+      "post": {
+        "operationId": "ig_audit_render",
+        "summary": "ig_audit_render",
+        "description": "Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. The report shows the profile + engagement, content mix, the top reels and carousels (with cover thumbnails, metrics, and why each worked), what works (best days/time/hooks), top hashtags, and a verdict with recommendations. The file carries the Loore branding so a forwarded report advertises the agent. Fixed credit cost per call. Deliver the returned link to the user as a document — never paste it as raw text.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "description": "The analyzed Instagram @handle (without @)"
+                  }
+                },
+                "required": [
+                  "handle"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/skill-list": {
+      "post": {
+        "operationId": "skill_list",
+        "summary": "skill_list",
+        "description": "List the skills the user can run — reusable, named recipes. Returns each skill's slug, name, a short description of WHAT it does and WHEN to use it, and the inputs to gather before running it. Read-only; no internal pipeline details are exposed.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/skill-run": {
+      "post": {
+        "operationId": "skill_run",
+        "summary": "skill_run",
+        "description": "Run one of the user's skills by its slug, passing the inputs it declared. Starts an async run and returns a runId + status (queued); poll skill-run-status for the result (which may carry generated media). Runs are idempotent: over MCP a call with identical slug+inputs replays the SAME run — pass a new `nonce` to force a fresh run of the same skill with the same inputs.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "skill_slug": {
+                    "type": "string",
+                    "description": "The slug of the skill to run (from skill-list)"
+                  },
+                  "inputs": {
+                    "type": "object",
+                    "description": "The inputs the skill declared (gathered from the user); validated server-side"
+                  },
+                  "nonce": {
+                    "type": "string",
+                    "description": "Optional. Vary it to force a fresh run when re-running the same skill with identical inputs."
+                  }
+                },
+                "required": [
+                  "skill_slug"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/skill-run-status": {
+      "post": {
+        "operationId": "skill_run_status",
+        "summary": "skill_run_status",
+        "description": "Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "run_id": {
+                    "type": "string",
+                    "description": "The skill run id returned by skill-run"
+                  }
+                },
+                "required": [
+                  "run_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/skill-create": {
+      "post": {
+        "operationId": "skill_create",
+        "summary": "skill_create",
+        "description": "Create a new custom skill for the key owner from a config: a name, a url-safe slug (its /command), a one-line description, the inputs to gather (JSON-schema object), the pipeline steps (each an id + an allowlisted stage + a templated input), and the output projection. Validated against the SAME schema, allowlist and collision rules the runner enforces, so anything created is runnable. On success returns the created skill summary; on a validation/collision problem returns a structured error (in the 200 body) to correct and retry. Returns [] semantics — a domain error — when the skills system is disabled.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "slug": {
+                    "type": "string",
+                    "description": "url-safe id [a-z0-9-]{3,48}; becomes the /command"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Short display name (≤64 chars, single line)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "One-line description of WHAT the skill does"
+                  },
+                  "inputs": {
+                    "type": "object",
+                    "description": "JSON-schema object of the inputs the skill gathers before a run"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "description": "Pipeline steps: each { id, stage (allowlisted), input (templated) }; ≤6 steps"
+                  },
+                  "outputs": {
+                    "type": "object",
+                    "description": "Output projection: names mapped to templates over inputs.* / steps.<id>.output"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "inputs",
+                  "steps",
+                  "outputs"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/plan-checkout": {
+      "post": {
+        "operationId": "plan_checkout",
+        "summary": "plan_checkout",
+        "description": "Create a hosted payment checkout for upgrading the key owner to a paid plan. Returns the checkout URL to send the buyer to; the price is resolved server-side (never client-supplied) and only a strict upgrade over the current plan is allowed. Nothing is charged by this call.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plan": {
+                    "type": "string",
+                    "description": "Target paid plan: start | pro | max"
+                  },
+                  "interval": {
+                    "type": "string",
+                    "description": "Billing period: monthly | annual (optional, default monthly)"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Checkout page language: ru | en (optional, default ru)"
+                  }
+                },
+                "required": [
+                  "plan"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ig-analytics/{id}": {
+      "get": {
+        "operationId": "ig_analytics_read",
+        "summary": "ig_analytics_read",
+        "description": "Read a single Instagram analysis result by id. Cross-owner ids resolve to 404 (existence is never leaked).",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success — the analysis wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or stage arguments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "operationId": "mcp_json_rpc",
+        "summary": "MCP JSON-RPC endpoint",
+        "description": "Model Context Protocol (MCP) JSON-RPC 2.0 endpoint — the URL you paste into Claude/Codex.\nSame Bearer-key auth as the REST API. It speaks three methods over a single POST:\n\n- `initialize` — handshake; negotiates the protocol version.\n- `tools/list` — advertises the tools (stages) the key may call.\n- `tools/call` — runs a tool (stage) and returns its result.\n\nJSON-RPC does not map onto REST paths, so the tools are documented here rather than as\nseparate paths. Tools advertised by `tools/list` (for an all-access key):\n\n- `ig_analytics` — Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). Your own agent reads these numbers and writes the analysis — Loore returns the data, not a narrative.\n- `kb_search` — Search the user's OWN knowledge base for passages relevant to a query, to ground your answer in their uploaded documents. Returns the top matching chunks (content + source file id + similarity distance). Read-only retrieval over the user's own data.\n- `reference_save` — Save the user's supplied images as visual reference assets — face photos, cover-style references, or a logo — to reuse in future image generations. Send 1-5 images per call as data: URLs under a single kind (face | style | logo); each is validated and stored (an identical image sent again is reused, not duplicated). Set replaceExisting to first clear all existing assets of that kind. Returns a per-image outcome (saved | reused | rejected) plus the active counts per kind afterwards.\n- `reference_list` — List the user's stored visual reference assets (id, kind, label, dimensions, size, created/last-used timestamps), newest first. Optionally narrow to one kind (face | style | logo). Read-only.\n- `reference_delete` — Delete the user's stored reference assets. Pass EXACTLY ONE selector per call: id (one asset), ids (a batch of up to 50 asset ids in ONE call), kind (every stored asset of that kind: face | style | logo), or all=true (every stored reference asset). When the user asks to delete several or ALL references («удали все»), make ONE call with ids, kind, or all — NEVER loop one-by-one with id. Selector choice: the user points at specific listed items they can see («удали эти», «все 9») → ids from the listing; the user means the current category («удали все лица») → kind; all=true ONLY on explicit GLOBAL intent covering every kind («удали вообще все референсы»). Idempotent: an unknown, foreign, or already-deleted id is reported as deleted=false, never an error. Returns exact counts (deleted / notFound, per-id results for ids) plus the remaining active counts per kind, so report the resulting state precisely.\n- `artifact_list` — List the images the user has generated (covers and carousel slides), newest first, for their gallery. Each item carries its image link, kind (cover | carousel_slide), title, the group id that ties one batch together, its position within that group, and when it was created. Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.\n- `miner_search` — Find what's going viral in an Instagram niche: start a background scan that mines top public creators and their best-performing reels for a niche you name, building the user's competitive base to analyze. Provide EXACTLY ONE of niche_query or run_id per call — never both, never neither. Pass niche_query (a niche or topic phrase, 3-100 chars) to START a scan — it returns a run id and a queued status (if a scan is already in progress you get THAT pending run back instead of a new one). Pass that run id back as run_id to CHECK the scan's progress until it is done. max_profiles bounds how many creators to enrich (integer 1-300, default 10; only valid with niche_query — pass the exact number the user asked for, e.g. 50). The per-scan cap is 300 on EVERY plan; the real ceiling is the user's daily research allowance (a big scan may exceed today's budget — the returned note says how many can be collected today, so scan in batches). A single scan of one niche often yields fewer than asked: to reach N, run FOLLOW-UP scans with DIFFERENT niche phrasings (synonyms, sub-niches, adjacent topics) — never repeat the identical niche_query expecting new results.\n- `miner_fired_reels` — List which of the user's tracked competitor reels fired recently — clips that suddenly outperformed their author's usual numbers — newest fire first. Each item carries the reel's link, author handle, play count, plays-per-hour velocity (null when the publish time is unknown), a short caption excerpt, and when it fired. limit caps the count (1-20, default 20). Read-only.\n- `miner_fired_posts` — List which of the user's tracked competitor POSTS fired recently — photos and carousels whose likes suddenly outran their author's usual numbers — newest fire first. Each item carries the post's link, author handle, likes, comments, whether it is a photo or a carousel, a short caption excerpt, and when it fired. Posts have no view count, so none is reported. Use miner_fired_reels for reels. limit caps the count (1-20, default 20). Read-only.\n- `miner_insights` — Read everything the user has mined about a niche. Returns the competitor roster (competitors: the actual mined accounts, biggest first — handle, follower count, name, category, verified, how many reels each appeared in, whether tracked), the top reels by play count (topReels: each with a link, author handle, plays/likes/comments, publish time, and caption excerpt), the base totals, the velocity outliers (reels far above their author's median), the busiest posting hours (in UTC), and the fastest-growing tracked accounts — all RAW numbers for your own agent to analyze. Call this after a miner_search scan reaches status 'done' to LIST the competitors and their best reels. roster_limit (1-300, optional, default 20) bounds how many competitor rows come back — leave it default for a normal look; pass a high value (up to 300) ONLY when building a full competitor REPORT that needs the whole base. No new mining and no credit spend — read-only.\n- `library_save_search` — Keep a search on the user's own library shelf so they can return to it later: what was searched (accounts, reels, posts or hashtags) and the exact query. Saving the same query again does not duplicate it — it counts the revisit. Optionally file it under a folder name such as a niche; the folder is created on first use.\n- `library_save_item` — Put one thing aside on the user's library shelf: a profile, a reel, a post or a hashtag. Pass the handle, the shortcode or the hashtag as the reference. Add a title the user will recognise and a note on why it was kept. Keeping the same thing again refreshes it instead of duplicating it.\n- `library_list` — Read the user's own library: the searches they kept (with how often they returned to each one and when it last ran) and the profiles, reels, posts and hashtags they put aside with their notes. Use this before searching anew — the user may already have what they need. Read-only.\n- `miner_track` — Add a competitor to the user's daily tracking so their new reels are watched for breakouts. Give an Instagram handle or profile link; the account must already be in the user's mined base (run a niche scan with miner_search first if it isn't). Respects the user's plan tracking cap and is reversible. Returns whether tracking is now on, or a reason it isn't (not in the base, or the tracking cap is reached).\n- `ig_stories` — Look up a public Instagram account's currently-live Stories (metadata only — no media is downloaded). Returns each story's posted time, media kind (image/video), duration, any @mentions, and a link-sticker URL when present, plus the total count. Honest-empty when the account has no active stories or is private.\n- `ig_highlights` — List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a cover image URL when available. Read-only; honest-empty for an account with no highlights or a private one.\n- `ig_post_engagement` — Read the engagement depth of a single public post or reel: its like/comment totals, a sample of up to 20 accounts who liked it, and the top comment threads (up to 10, each with up to 3 replies taken from the thread's preview — not the full reply history; text trimmed). Accepts a post/reel URL or its shortcode. Read-only.\n- `ig_music_trends` — Search Instagram's audio library for trending sounds to use in Reels. Returns up to 15 tracks for a query — each with title, artist, duration in seconds, an id you can reference, and two marketer signals: reels_usage shows how many reels use each sound (e.g. '322K reels') and trending flags whether it's trending in Reels right now. Read-only.\n- `ig_followers_sample` — Fetch a SAMPLE (first page, up to 30) of a public account's followers OR the accounts it follows — handles plus display names. This is a sample, not the full list; compare two accounts' samples to reason about audience overlap yourself. Read-only.\n- `ig_request` — Advanced Instagram data lookup for anything the dedicated tools don't already cover — pick one of the supported endpoints and pass its parameters. Read-only lookups only; results are size-capped. Use the dedicated tools first; reach for this for the long tail.\n- `download_instagram_media` — Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. Use this when the user wants the FILE itself (to repost/save) — distinct from reading a post's data. Only public posts; delivered privately to the user. One item per call: a reel or a single-photo post (a carousel sends its first item).\n- `download_instagram_story` — Download and SEND the actual video/photo FILE of an Instagram STORY to the user in this chat. Use this when the user wants the story FILE itself (to repost/save) — distinct from reading a story's data. Only public stories; delivered privately to the user. One story per call.\n- `analyze_reel` — Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images (hook/CTA/scene) for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames).\n- `report_render` — Turn a finished analysis into a BRANDED, ready-to-send report FILE from GENERIC structured content (title, metric tiles, markdown sections + tables) and return its link(s). For an Instagram ACCOUNT audit a dedicated branded HTML audit report exists separately; this tool is for generic structured reports (and an IG-audit PDF when one is explicitly wanted). Pass structured content: a title, optional subtitle + meta (account handle, period), up to 8 headline metric tiles, and 1-12 sections — each with a markdown body (**bold**, *italic*, `code`, - lists) and/or a structured table (columns + rows). The file carries the Loore branding (mascot, wordmark, footer) so a forwarded report advertises the agent. Set format to html, pdf, or both (default both). Fixed credit cost per call. Deliver the returned link to the user as a document — never paste it as raw text.\n- `ig_audit_render` — Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. The report shows the profile + engagement, content mix, the top reels and carousels (with cover thumbnails, metrics, and why each worked), what works (best days/time/hooks), top hashtags, and a verdict with recommendations. The file carries the Loore branding so a forwarded report advertises the agent. Fixed credit cost per call. Deliver the returned link to the user as a document — never paste it as raw text.\n- `skill_list` — List the skills the user can run — reusable, named recipes. Returns each skill's slug, name, a short description of WHAT it does and WHEN to use it, and the inputs to gather before running it. Read-only; no internal pipeline details are exposed.\n- `skill_run` — Run one of the user's skills by its slug, passing the inputs it declared. Starts an async run and returns a runId + status (queued); poll skill-run-status for the result (which may carry generated media). Runs are idempotent: over MCP a call with identical slug+inputs replays the SAME run — pass a new `nonce` to force a fresh run of the same skill with the same inputs.\n- `skill_run_status` — Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs.\n- `skill_create` — Create a new custom skill for the key owner from a config: a name, a url-safe slug (its /command), a one-line description, the inputs to gather (JSON-schema object), the pipeline steps (each an id + an allowlisted stage + a templated input), and the output projection. Validated against the SAME schema, allowlist and collision rules the runner enforces, so anything created is runnable. On success returns the created skill summary; on a validation/collision problem returns a structured error (in the 200 body) to correct and retry. Returns [] semantics — a domain error — when the skills system is disabled.\n- `plan_checkout` — Create a hosted payment checkout for upgrading the key owner to a paid plan. Returns the checkout URL to send the buyer to; the price is resolved server-side (never client-supplied) and only a strict upgrade over the current plan is allowed. Nothing is charged by this call.",
+        "tags": [
+          "MCP"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonRpcRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A JSON-RPC 2.0 response (success or error).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonRpcResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer API key. Create one in Settings → MCP, then send `Authorization: Bearer <key>`."
+      }
+    },
+    "schemas": {
+      "ApiOkEnvelope": {
+        "type": "object",
+        "description": "Success envelope. `result` carries the stage-specific payload.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "result": {
+            "description": "The stage result (shape depends on the endpoint)."
+          }
+        },
+        "required": [
+          "status",
+          "result"
+        ]
+      },
+      "ApiErrorEnvelope": {
+        "type": "object",
+        "description": "Failure envelope. `error` is a stable, switchable code (never a raw stack).",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "error"
+            ]
+          },
+          "error": {
+            "type": "string",
+            "description": "Stable error code.",
+            "enum": [
+              "invalid_request",
+              "unauthorized",
+              "quota_exceeded",
+              "scope_forbidden",
+              "not_found",
+              "conflict",
+              "rate_limited",
+              "server_error",
+              "stage_unavailable"
+            ]
+          },
+          "details": {
+            "description": "Optional structured detail (e.g. field errors)."
+          }
+        },
+        "required": [
+          "status",
+          "error"
+        ]
+      },
+      "JsonRpcRequest": {
+        "type": "object",
+        "description": "JSON-RPC 2.0 request. Free-tier request budget: 10/min, 200/day (scaled on paid plans).",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "enum": [
+              "2.0"
+            ]
+          },
+          "id": {
+            "description": "Request id echoed back on the response."
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "initialize",
+              "tools/list",
+              "tools/call"
+            ],
+            "description": "The JSON-RPC method to invoke."
+          },
+          "params": {
+            "description": "Method parameters (e.g. `{ name, arguments }` for tools/call)."
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "method"
+        ]
+      },
+      "JsonRpcResponse": {
+        "type": "object",
+        "description": "JSON-RPC 2.0 response — either `result` (success) or `error` (failure).",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "enum": [
+              "2.0"
+            ]
+          },
+          "id": {
+            "description": "The id from the request (or null)."
+          },
+          "result": {
+            "description": "Method result (on success)."
+          },
+          "error": {
+            "type": "object",
+            "description": "JSON-RPC error (on failure).",
+            "properties": {
+              "code": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "jsonrpc",
+          "id"
+        ]
+      }
+    }
+  }
+}

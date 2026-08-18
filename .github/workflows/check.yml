@@ -1,0 +1,22 @@
+name: docs
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  in-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The gate: regenerate from the LIVE contract and fail if the checked-in output differs.
+      # A documentation site that has drifted from the API is worse than no site.
+      - name: Generated pages match the live contract
+        run: node scripts/generate.mjs --check

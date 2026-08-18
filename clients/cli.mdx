@@ -1,0 +1,87 @@
+---
+title: "Клиенты с терминалом"
+description: "Claude Code, Codex, OpenClaw, Hermes — подключение одной строкой."
+---
+
+Каждая команда ниже проверена на живом клиенте, а не взята из общего шаблона. Различия между ними настоящие: у одного ключ передаётся заголовком, у другого только через переменную окружения, третий спрашивает его сам.
+
+## Claude Code
+
+```bash
+claude mcp add --transport http loore https://mcp.loore.ai/mcp \
+  --header 'Authorization: Bearer <ВАШ_КЛЮЧ>'
+```
+
+Проверка: команда `/mcp` в сессии.
+
+Или положите в `.mcp.json` в корне проекта — тогда сервер увидит вся команда:
+
+```json
+{
+  "mcpServers": {
+    "loore": {
+      "type": "http",
+      "url": "https://mcp.loore.ai/mcp",
+      "headers": { "Authorization": "Bearer <ВАШ_КЛЮЧ>" }
+    }
+  }
+}
+```
+
+## Codex
+
+Codex читает ключ **из переменной окружения** — флага для заголовка у него нет:
+
+```bash
+export LOORE_API_KEY='<ВАШ_КЛЮЧ>'
+codex mcp add loore --url https://mcp.loore.ai/mcp --bearer-token-env-var LOORE_API_KEY
+```
+
+Проверка: `codex mcp list`.
+
+В файле `~/.codex/config.toml`, в отличие от флагов, заголовок указать можно.
+
+## OpenClaw
+
+У OpenClaw сервер задаётся командой `mcp set`, которая принимает объект целиком:
+
+```bash
+openclaw mcp set loore '{"transport":"streamable-http","url":"https://mcp.loore.ai/mcp","headers":{"Authorization":"Bearer <ВАШ_КЛЮЧ>"}}'
+```
+
+Затем перезапустите шлюз: `openclaw gateway restart` и проверьте `openclaw mcp list`.
+
+## Hermes
+
+```bash
+hermes mcp add loore --url https://mcp.loore.ai/mcp --auth header
+```
+
+Команда интерактивная: Hermes сам спросит токен **скрытым вводом**, положит его в свой `.env` как `MCP_LOORE_API_KEY`, а в конфиг запишет только ссылку на переменную. Поэтому ключа в команде нет — он не осядет в истории оболочки.
+
+Проверка: `hermes mcp test loore` — реальное соединение со списком найденных инструментов. Уже запущенному Hermes достаточно отправить `/reload-mcp`, перезапуск шлюза не нужен.
+
+Ручной вариант — `~/.hermes/config.yaml`:
+
+```yaml
+mcp_servers:
+  loore:
+    url: "https://mcp.loore.ai/mcp"
+    headers:
+      Authorization: "Bearer ${MCP_LOORE_API_KEY}"
+    enabled: true
+```
+
+Ключ отдельно, в `~/.hermes/.env`:
+
+```bash
+MCP_LOORE_API_KEY=<ВАШ_КЛЮЧ>
+```
+
+<Note>
+  Для Streamable HTTP поле `transport` указывать не нужно — его выбирает наличие `url`. `transport: sse` существует только для устаревших SSE-серверов.
+</Note>
+
+<Warning>
+  Hermes подтягивает из MCP инструменты, но **не** устанавливает скилл-файлы. Скиллы Loore это не мешает: они выполняются на нашей стороне и вызываются как обычные инструменты `skill_list` / `skill_run`.
+</Warning>

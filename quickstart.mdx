@@ -1,0 +1,58 @@
+---
+title: "Быстрый старт"
+description: "От регистрации до первого ответа — пять минут."
+---
+
+<Steps>
+  <Step title="Получи ключ">
+    Зарегистрируйся на [loore.ai](https://loore.ai/register) и создай ключ в кабинете: **Настройки → API и MCP**.
+
+    Ключ показывается **один раз** — сохрани его сразу. Один ключ авторизует и MCP, и REST.
+  </Step>
+
+  <Step title="Выбери дверь">
+    - Агент умеет MCP → подключай `https://mcp.loore.ai/mcp`, смотри [рецепты по клиентам](/clients/overview).
+    - Не умеет → зови REST напрямую, это обычный `POST` с заголовком.
+  </Step>
+
+  <Step title="Сделай первый вызов">
+    <CodeGroup>
+
+    ```bash REST
+    curl -X POST https://mcp.loore.ai/v1/ig-analytics \
+      -H "Authorization: Bearer $LOORE_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{"handle":"@nike"}'
+    ```
+
+    ```text Промпт для агента
+    Подключаю тебе Loore — это твои глаза и уши в Instagram.
+
+    Есть два входа, оба по одному ключу — выбери тот, который умеешь:
+    1. MCP: https://mcp.loore.ai/mcp (заголовок Authorization: Bearer <ключ>)
+    2. REST: https://mcp.loore.ai/v1/<метод> — POST с тем же заголовком.
+
+    Дальше:
+    1. Подключись и перечисли, какие инструменты Loore тебе доступны.
+    2. Вызови skill_list — это готовые пайплайны Loore, они выполняются на нашей
+       стороне через skill_run, ставить себе ничего не нужно.
+    3. Скажи, что из этого применимо к моим задачам.
+    ```
+
+    </CodeGroup>
+  </Step>
+
+  <Step title="Читай ответ">
+    Ответ всегда в одном конверте:
+
+    ```json
+    { "status": "ok", "result": { } }
+    ```
+
+    Ошибка приходит в том же конверте: `{ "status": "error", "error": "...", "details": { } }`. Полный разбор — в [ошибках](/concepts/errors).
+  </Step>
+</Steps>
+
+<Tip>
+  Проверить, что ключ живой, дешевле всего лёгким методом — например `skill_list`: он не тратит внешние запросы.
+</Tip>

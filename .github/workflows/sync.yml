@@ -1,0 +1,34 @@
+name: sync-from-live-contract
+
+on:
+  schedule:
+    # Daily at 04:00 UTC — the API changes with deploys, the docs follow within a day.
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Regenerate from the live contract
+        run: node scripts/generate.mjs
+      # Commit only when the contract actually moved. No empty commits, no noise.
+      - name: Commit if the contract moved
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "contract unchanged"
+            exit 0
+          fi
+          git config user.name "loore-docs bot"
+          git config user.email "noreply@loore.ai"
+          git add openapi.json mcp/tools.mdx
+          git commit -m "Синхронизация с живым контрактом API"
+          git push

@@ -1,0 +1,59 @@
+---
+title: "Приложения"
+description: "Cursor, Claude Desktop, Claude.ai, ChatGPT — где статический ключ проходит, а где нет."
+---
+
+## Cursor
+
+Settings → MCP → Add new server, либо файл `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "loore": {
+      "type": "http",
+      "url": "https://mcp.loore.ai/mcp",
+      "headers": { "Authorization": "Bearer <ВАШ_КЛЮЧ>" }
+    }
+  }
+}
+```
+
+После перезапуска инструменты Loore появятся в списке MCP.
+
+## Claude Desktop
+
+Диалог коннекторов принимает адрес и данные OAuth — поля для статического ключа там нет. Рабочий путь — конфиг с локальным мостом `mcp-remote`, который подставит заголовок сам.
+
+Настройки → Разработчик → Изменить конфиг (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "loore": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.loore.ai/mcp",
+        "--header",
+        "Authorization: Bearer <ВАШ_КЛЮЧ>"
+      ]
+    }
+  }
+}
+```
+
+## Claude.ai и ChatGPT
+
+<Warning>
+  Честно: диалоги коннекторов в claude.ai и в режиме разработчика ChatGPT принимают только адрес и OAuth. Вставить статический ключ туда некуда, а OAuth на нашей стороне пока не включён — идёт разработка.
+</Warning>
+
+Что работает сегодня:
+
+- **для Anthropic** — вкладка Claude Code (терминал) или Claude Desktop через `mcp-remote`;
+- **для OpenAI** — Codex;
+- **для любого клиента** — прямой REST тем же ключом.
+
+Когда OAuth включится, подключение станет в один клик прямо из этих диалогов — страница обновится.
