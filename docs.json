@@ -36,6 +36,7 @@
               "mcp/tools",
               "concepts/skills",
               "concepts/errors",
+              "concepts/limits",
               "concepts/pricing"
             ]
           }
