@@ -55,9 +55,26 @@ function operations(spec) {
   return rows;
 }
 
-/** Markdown table cells must not break the row. */
-function cell(text) {
-  return text.replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+/**
+ * A cell rendered INSIDE a code span. Braces and angle brackets are literal there, so escaping them
+ * would print the backslashes; only the pipe (which ends the cell) and stray backticks matter.
+ */
+function codeCell(text) {
+  return text.replace(/`/g, "").replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * A cell rendered as PROSE. Here MDX is live: `{` starts a JS expression and `<` starts a JSX tag,
+ * so one description carrying either would break the whole page build. Plus the pipe/newline rules
+ * every table cell has.
+ */
+function proseCell(text) {
+  return text
+    .replace(/\|/g, "\\|")
+    .replace(/\s+/g, " ")
+    .replace(/[{}]/g, (brace) => `\\${brace}`)
+    .replace(/</g, "&lt;")
+    .trim();
 }
 
 /** First sentence of a description — the table stays scannable, the API reference has the rest. */
@@ -87,7 +104,7 @@ function toolsPage(spec, rows) {
   ];
   for (const row of rows) {
     lines.push(
-      `| \`${cell(row.tool)}\` | \`${cell(`${row.method} ${row.path}`)}\` | ${cell(firstSentence(row.description || row.summary))} |`,
+      `| \`${codeCell(row.tool)}\` | \`${codeCell(`${row.method} ${row.path}`)}\` | ${proseCell(firstSentence(row.description || row.summary))} |`,
     );
   }
   lines.push(
