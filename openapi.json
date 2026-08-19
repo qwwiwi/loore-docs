@@ -121,7 +121,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -262,7 +262,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -408,7 +408,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -543,7 +543,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -693,7 +693,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -836,7 +836,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -979,7 +979,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1114,7 +1114,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1249,7 +1249,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1384,7 +1384,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1534,7 +1534,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1688,7 +1688,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1827,7 +1827,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1964,7 +1964,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2101,7 +2101,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2238,7 +2238,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2375,7 +2375,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2512,7 +2512,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2654,7 +2654,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2795,7 +2795,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2932,7 +2932,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3069,7 +3069,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3214,7 +3214,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3376,7 +3376,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3513,7 +3513,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3643,7 +3643,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3788,7 +3788,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3925,7 +3925,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4086,7 +4086,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4231,7 +4231,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4348,7 +4348,7 @@
             }
           },
           "429": {
-            "description": "Per-plan request budget exhausted.",
+            "description": "Per-plan request budget exhausted. The budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4492,7 +4492,7 @@
       },
       "JsonRpcRequest": {
         "type": "object",
-        "description": "JSON-RPC 2.0 request. Free-tier request budget: 10/min, 200/day (scaled on paid plans).",
+        "description": "JSON-RPC 2.0 request. Free-tier request budget: 10/min, 200/day per ACCOUNT (scaled on paid plans; extra keys do not add budget).",
         "properties": {
           "jsonrpc": {
             "type": "string",
