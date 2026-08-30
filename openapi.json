@@ -3,14 +3,14 @@
   "info": {
     "title": "Loore Public API",
     "version": "1.1.0",
-    "description": "START WITH `reel_storyboard` (the first tool in the catalogue). It cuts an Instagram reel into timecoded FRAMES and returns them as image links, so YOUR AGENT SEES THE REEL — hook, body and closing frames at known timestamps, flagged on shot changes — and decides from what is actually on screen instead of guessing from a text description of a video it never watched. `reel_reference_compare` does the same across several reels and returns an addressed evidence ledger. We measure and hand back the evidence; your agent draws the conclusions — WE DO NOT WRITE YOUR SCENARIOS OR TELEPROMPTER TEXT, and generate no prose for you at all. (Producing the data uses machines where it must — speech is transcribed by a speech-to-text model — but the words you publish are never ours.) READING ORDER: `paths` is a JSON object, so its key order is not a contract. The catalogue order is published as data in `x-loore-catalogue-order` at this document's root, and on each operation as `x-displayOrder`. Sort by those, never by key iteration. SURFACE: 70 tools are callable over MCP (`tools/call`). This document lists 72 REST operations: those same 70 tool endpoints, plus 1 read that exists only over REST (`GET /v1/ig-analytics/{id}` — over MCP an analysis is read through the `ig_analytics` tool) and the 1 JSON-RPC endpoint (`/mcp`), which carries the tools rather than being one. The same split is machine-readable at the document's top level under `x-loore-surface`. REFERENCE: https://mcp.loore.ai/docs (human) — https://mcp.loore.ai/openapi.json (this document). The Loore public API. Every call is authenticated with a Bearer API key (create one in Settings → MCP) and scoped to the key owner's account. LLM-spending stages meter the owner's credits exactly like the in-app flow. Responses use the shared envelope `{ status, error?, details?, result? }`. BILLING (contract version 3): a result that reports a charge carries FIVE fields, the same five on every paid tool. `nominalCredits` is what the operation costs by the price list; `creditsDebited` is what ACTUALLY left the balance; `cacheHit` says whether the deliverable was served without paying the provider again; `operationId` is a stable opaque id that two retries of one logical call share (the same id appears on the matching row in `get_spend_report`, so a receipt can be lined up against the spend report); and `billingContractVersion: 3` with `creditUnit: \"credit\"` declares the contract and the unit. All figures are in CREDITS, fractions allowed (a render or media download is 0.5). A CACHE HIT AND A DEDUPLICATED REPEAT REPORT `creditsDebited: 0` with `cacheHit: true`, while `nominalCredits` keeps the price — that is the normal, expected shape, not an error. A replayed `Idempotency-Key` result is one of these: the original call was charged, the replay is not. CHANGED IN v3: `creditsCharged` is still present and is now an EXACT ALIAS of `creditsDebited` — the amount actually taken. Under version 2 a few tools reported their list price under that name even when nothing was debited, so the same field meant different things on different tools. It was kept rather than removed so no client reads an absent field as zero; the version number moving from 2 to 3 is the signal to re-read this list. If you budget or reconcile against a single number, use `creditsDebited`. Markers declare the fields THIS contract produces; they are not a claim about other numbers in the payload. A response WITHOUT them reports no charge of ours — including a replayed result stored before this contract, which is returned in its original form. Call `POST /v1/billing-balance` (free) for the remaining balance in the same unit. ERRORS: both doors return the same failure envelope. Over REST it is the response body; over MCP it is the `tools/call` result with `isError: true` (serialized in the text block and repeated in `structuredContent`). `details` carries the cause whenever the server knows it — for `invalid_request` the exact field paths that failed validation. PAGINATION: an opaque `cursor` is valid for 6 hours after it is issued; past that the call is refused with `cursor_expired` and the walk restarts from page one without a cursor. IDEMPOTENCY: send `Idempotency-Key` on any expensive call to make a retry replay instead of re-run. The stages whose key IS their exactly-once arbiter (`skill-run`, `ig-audit-render`, `ig-batch-create`) no longer REQUIRE the header: without one the server derives a stable key from (account, stage, body), which is exactly what the MCP door does, so the same body is accepted on both doors. Send your own key when you want a genuinely fresh run. KEY LENGTH: the header is accepted up to 256 characters. A longer one is DROPPED, and on those three stages the server then derives its own key — the call still succeeds and is still deduplicated, but your key is no longer the arbiter. Keep it within 256 characters to stay in control of it."
+    "description": "START WITH `reel_storyboard` (the first tool in the catalogue). It cuts an Instagram reel into timecoded FRAMES and returns them as image links, so YOUR AGENT SEES THE REEL — hook, body and closing frames at known timestamps, flagged on shot changes — and decides from what is actually on screen instead of guessing from a text description of a video it never watched. `reel_reference_compare` does the same across several reels and returns an addressed evidence ledger. We measure and hand back the evidence; your agent draws the conclusions — WE DO NOT WRITE YOUR SCENARIOS OR TELEPROMPTER TEXT, and generate no prose for you at all. (Producing the data uses machines where it must — speech is transcribed by a speech-to-text model — but the words you publish are never ours.) READING ORDER: `paths` is a JSON object, so its key order is not a contract. The catalogue order is published as data in `x-loore-catalogue-order` at this document's root, and on each operation as `x-displayOrder`. Sort by those, never by key iteration. SURFACE: 73 tools are callable over MCP (`tools/call`). This document lists 75 REST operations: those same 73 tool endpoints, plus 1 read that exists only over REST (`GET /v1/ig-analytics/{id}` — over MCP an analysis is read through the `ig_analytics` tool) and the 1 JSON-RPC endpoint (`/mcp`), which carries the tools rather than being one. The same split is machine-readable at the document's top level under `x-loore-surface`. REFERENCE: https://mcp.loore.ai/docs (human) — https://mcp.loore.ai/openapi.json (this document). The Loore public API. Every call is authenticated with a Bearer API key (create one in Settings → MCP) and scoped to the key owner's account. LLM-spending stages meter the owner's credits exactly like the in-app flow. Responses use the shared envelope `{ status, error?, details?, result? }`. BILLING (contract version 3): a result that reports a charge carries FIVE fields, the same five on every paid tool. `nominalCredits` is what the operation costs by the price list; `creditsDebited` is what ACTUALLY left the balance; `cacheHit` says whether the deliverable was served without paying the provider again; `operationId` is a stable opaque id that two retries of one logical call share (the same id appears on the matching row in `get_spend_report`, so a receipt can be lined up against the spend report); and `billingContractVersion: 3` with `creditUnit: \"credit\"` declares the contract and the unit. All figures are in CREDITS, fractions allowed (a render or media download is 0.5). A CACHE HIT AND A DEDUPLICATED REPEAT REPORT `creditsDebited: 0` with `cacheHit: true`, while `nominalCredits` keeps the price — that is the normal, expected shape, not an error. A replayed `Idempotency-Key` result is one of these: the original call was charged, the replay is not. CHANGED IN v3: `creditsCharged` is still present and is now an EXACT ALIAS of `creditsDebited` — the amount actually taken. Under version 2 a few tools reported their list price under that name even when nothing was debited, so the same field meant different things on different tools. It was kept rather than removed so no client reads an absent field as zero; the version number moving from 2 to 3 is the signal to re-read this list. If you budget or reconcile against a single number, use `creditsDebited`. Markers declare the fields THIS contract produces; they are not a claim about other numbers in the payload. A response WITHOUT them reports no charge of ours — including a replayed result stored before this contract, which is returned in its original form. Call `POST /v1/billing-balance` (free) for the remaining balance in the same unit. ERRORS: both doors return the same failure envelope. Over REST it is the response body; over MCP it is the `tools/call` result with `isError: true` (serialized in the text block and repeated in `structuredContent`). `details` carries the cause whenever the server knows it — for `invalid_request` the exact field paths that failed validation. PAGINATION: an opaque `cursor` is valid for 6 hours after it is issued; past that the call is refused with `cursor_expired` and the walk restarts from page one without a cursor. IDEMPOTENCY: send `Idempotency-Key` on any expensive call to make a retry replay instead of re-run. The stages whose key IS their exactly-once arbiter (`skill-run`, `ig-audit-render`, `ig-batch-create`) no longer REQUIRE the header: without one the server derives a stable key from (account, stage, body), which is exactly what the MCP door does, so the same body is accepted on both doors. Send your own key when you want a genuinely fresh run. KEY LENGTH: the header is accepted up to 256 characters. A longer one is DROPPED, and on those three stages the server then derives its own key — the call still succeeds and is still deduplicated, but your key is no longer the arbiter. Keep it within 256 characters to stay in control of it."
   },
   "x-loore-surface": {
-    "mcpTools": 70,
-    "stageOperations": 70,
+    "mcpTools": 73,
+    "stageOperations": 73,
     "readOperations": 1,
     "transportOperations": 1,
-    "restOperations": 72
+    "restOperations": 75
   },
   "x-loore-catalogue-order": [
     "reel_storyboard",
@@ -65,6 +65,8 @@
     "tracking_pause",
     "tracking_resume",
     "tracking_remove",
+    "tracking_add_batch",
+    "tracking_batch_status",
     "kb_search",
     "reference_save",
     "reference_list",
@@ -78,6 +80,7 @@
     "skill_run_status",
     "skill_create",
     "get_credit_balance",
+    "estimate_credit_cost",
     "get_spend_report",
     "get_partner_summary",
     "list_partner_codes",
@@ -126,6 +129,14 @@
                   "frames": {
                     "type": "number",
                     "description": "How many frames to cut, 3-24 (default 12)"
+                  },
+                  "include_image_data": {
+                    "type": "boolean",
+                    "description": "When true (the DEFAULT), the frames come back as actual MCP image blocks — the real JPEG bytes in the answer — not only as links. Required for any client that cannot fetch an external URL: it sees the frames without making a single extra request. At most 12 images per answer, and a byte budget on top of that — whatever is not inlined is NAMED in the answer, and every frame keeps its URL in the JSON either way. Set false to receive links only."
+                  },
+                  "max_image_frames": {
+                    "type": "number",
+                    "description": "How many frames come back as PICTURES, 0-12 (default 8). The default is below the ceiling on purpose: pictures are sent at a quality where small on-frame text stays readable, and that costs weight, so the answer carries fewer of them rather than more unreadable ones. Raise it if your client accepts large results, lower it if it does not; 0 is the same as include_image_data:false. EVERY frame's URL stays in the JSON at every setting, so nothing is ever lost by asking for fewer pictures. If a result is too large for your client even without pictures, the answer comes back as a SUCCESS whose JSON is {status:\"result_too_large\", ...} plus a marked, unparseable excerpt — check that status before reading your own fields, and follow its advice to ask for less."
                   }
                 },
                 "required": [
@@ -289,6 +300,14 @@
                   "comment_sample": {
                     "type": "number",
                     "description": "How many comments to sample per reel (default 20)"
+                  },
+                  "include_image_data": {
+                    "type": "boolean",
+                    "description": "When true, each measured reel's frames come back as actual MCP image blocks — the real JPEG bytes in the answer — not only as links, for clients that cannot fetch an external URL. DEFAULT false here because this call measures several reels at once; the per-answer ceiling of 12 images and its byte budget apply regardless, and whatever is not inlined is NAMED in the answer. Every frame keeps its URL in the JSON."
+                  },
+                  "max_image_frames": {
+                    "type": "number",
+                    "description": "How many frames come back as PICTURES, 0-12 (default 8). The default is below the ceiling on purpose: pictures are sent at a quality where small on-frame text stays readable, and that costs weight, so the answer carries fewer of them rather than more unreadable ones. Raise it if your client accepts large results, lower it if it does not; 0 is the same as include_image_data:false. EVERY frame's URL stays in the JSON at every setting, so nothing is ever lost by asking for fewer pictures. If a result is too large for your client even without pictures, the answer comes back as a SUCCESS whose JSON is {status:\"result_too_large\", ...} plus a marked, unparseable excerpt — check that status before reading your own fields, and follow its advice to ask for less."
                   }
                 },
                 "required": [
@@ -1161,7 +1180,7 @@
       "post": {
         "operationId": "ig_highlights",
         "summary": "ig_highlights",
-        "description": "List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a cover image URL when available. Read-only; honest-empty for an account with no highlights or a private one.",
+        "description": "List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a COVER IMAGE URL when the account's tray carries one. Costs 3 credits: reading a tray by handle costs three upstream requests, whatever it looks like. It does NOT return highlight ids, so you cannot open a highlight afterwards. ig_highlights_list answers the same question for the same price when you address the account by handle — cheaper if you pass a numeric account id — and it returns the ids ig_highlight_items takes, but no cover images. So: call THIS one when you want the covers, and ig_highlights_list when you need to open a highlight or already hold the account id. Read-only; honest-empty for an account with no highlights or a private one (an empty tray is not billed).",
         "tags": [
           "REST"
         ],
@@ -7007,7 +7026,7 @@
       "post": {
         "operationId": "ig_highlights_list",
         "summary": "ig_highlights_list",
-        "description": "List an account's story HIGHLIGHTS: the highlight id, its title, how many items it holds and when it was created. The id opens the highlight with ig_highlight_items. Costs 1 credits per upstream request — the handle form costs several, so pass the numeric account id when you have it. Read-only.",
+        "description": "List an account's story HIGHLIGHTS: the highlight id, its title, how many items it holds and when it was created. The id opens the highlight with ig_highlight_items — that id is the main reason to reach for this tool. Costs 1 credits per upstream request — the handle form costs several, so pass the numeric account id when you have it. ig_highlights answers the neighbouring question — titles, item counts and COVER IMAGES, no ids — and by handle it costs the same as this one, so choose between them by what you need back rather than by price: ids and creation times here, cover images there. Read-only.",
         "tags": [
           "REST"
         ],
@@ -8283,7 +8302,7 @@
       "post": {
         "operationId": "analyze_reel",
         "summary": "analyze_reel",
-        "description": "Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images (hook/CTA/scene) for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames) and costs 4 credits; depth=deep costs 6 credits. Charged only when the analysis actually lands — a failed, private or not-found reel is never charged.",
+        "description": "Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images, each labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames) and costs 4 credits; depth=deep costs 6 credits. Charged only when the analysis actually lands — a failed, private or not-found reel is never charged.",
         "tags": [
           "REST"
         ],
@@ -8310,6 +8329,14 @@
                   "account_hint": {
                     "type": "string",
                     "description": "Optional author handle to baseline against when known (fallback only — the resolved author wins)"
+                  },
+                  "include_image_data": {
+                    "type": "boolean",
+                    "description": "When true (the DEFAULT), the frames come back as actual MCP image blocks — the real JPEG bytes in the answer — not only as links. Required for any client that cannot fetch an external URL: it sees the frames without making a single extra request. At most 12 images per answer, and a byte budget on top of that — whatever is not inlined is NAMED in the answer, and every frame keeps its URL in the JSON either way. Set false to receive links only."
+                  },
+                  "max_image_frames": {
+                    "type": "number",
+                    "description": "How many frames come back as PICTURES, 0-12 (default 8). The default is below the ceiling on purpose: pictures are sent at a quality where small on-frame text stays readable, and that costs weight, so the answer carries fewer of them rather than more unreadable ones. Raise it if your client accepts large results, lower it if it does not; 0 is the same as include_image_data:false. EVERY frame's URL stays in the JSON at every setting, so nothing is ever lost by asking for fewer pictures. If a result is too large for your client even without pictures, the answer comes back as a SUCCESS whose JSON is {status:\"result_too_large\", ...} plus a marked, unparseable excerpt — check that status before reading your own fields, and follow its advice to ask for less."
                   }
                 },
                 "required": [
@@ -9965,7 +9992,7 @@
       "post": {
         "operationId": "tracking_add",
         "summary": "tracking_add",
-        "description": "Put an Instagram account under WATCH so its new posts and reels keep flowing into the user's tracking feed. Give a handle or a profile link. On success the account is watched and its recent publications are collected immediately, so tracking_feed has something to show at once. Costs 2 credits per account added — nothing is charged when the add is refused. The user's plan grants a fixed number of watch slots: when they are used up the answer is added=false with reason='no_slots' and the plan's real numbers, so tell the user to free a slot with tracking_remove or upgrade — never retry the same add. An account already watched answers added=false with reason='already_tracked'. Read the roster first with tracking_list.",
+        "description": "Put an Instagram account under WATCH and collect its recent publications into the user's tracking feed. Give a handle or a profile link. On success the account is watched and its recent publications are collected immediately, so tracking_feed has something to show at once. It does NOT keep updating by itself: the nightly auto-update is OFF for every new account and only its owner turns it on, because it charges credits every day it runs. Use tracking_refresh to pull new publications later. Costs 9 credits per account added — nothing is charged when the add is refused. The user's plan grants a fixed number of watch slots: when they are used up the answer is added=false with reason='no_slots' and the plan's real numbers, so tell the user to free a slot with tracking_remove or upgrade — never retry the same add. An account already watched answers added=false with reason='already_tracked'. Read the roster first with tracking_list.",
         "tags": [
           "REST"
         ],
@@ -10113,7 +10140,7 @@
       "post": {
         "operationId": "tracking_refresh",
         "summary": "tracking_refresh",
-        "description": "Collect ONE watched account's newest publications right now, instead of waiting for the nightly update. Give a handle or profile link of an account already watched. Costs 1 credits per refresh — nothing is charged when it is refused. An account that is not watched answers refreshed=false with reason='not_tracked' (add it first); a paused one answers reason='paused' (resume it first). Read the result through tracking_feed.",
+        "description": "Collect ONE watched account's newest publications right now. Give a handle or profile link of an account already watched. This is the ONLY way a watched account is updated unless its owner has switched the nightly auto-update on for it — that switch is OFF for every account by default, because it bills every day it runs. tracking_list reports it per account. Costs 1 credits per refresh — nothing is charged when it is refused. An account that is not watched answers refreshed=false with reason='not_tracked' (add it first); a paused one answers reason='paused' (resume it first). Read the result through tracking_feed.",
         "tags": [
           "REST"
         ],
@@ -10701,6 +10728,306 @@
         "x-displayOrder": 51
       }
     },
+    "/v1/tracking-add-batch": {
+      "post": {
+        "operationId": "tracking_add_batch",
+        "summary": "tracking_add_batch",
+        "description": "Put a WHOLE LIST of Instagram accounts under watch in one call — the way to build a competitor base of hundreds of accounts instead of calling tracking_add once each (up to 500 accounts per list). Give handles or profile links in any mix. Returns a jobId immediately; it does NOT wait for the accounts to be collected, because each one is a chain of provider requests and a long list takes minutes. The answer carries estimatedSeconds — roughly how long the whole job will take — so tell the user that number rather than leaving them watching; a full list of 500 is several minutes, not seconds. Poll tracking_batch_status with the jobId to watch it finish and to read the verdict on EVERY account: added, already watched, or refused with a reason.  MONEY: 9 credits per account ACTUALLY added, and nothing else. An account already on the watch list is not charged again, an account there was no free slot for is not charged, and a failed add is not charged. Before the job starts, the whole list is checked against the balance — a list that does not fit is refused up front and spends nothing, so read the refusal and tell the user how many credits are missing rather than retrying.  SLOTS: the user's plan grants a fixed number of watch slots. A list longer than the free slots is NOT rejected wholesale — the accounts that fit are added and the rest come back one by one with reason='no_slots', so tell the user to free slots with tracking_remove or upgrade. Read tracking_list first if you need to know how many slots are left.  Sending the same list twice returns the SAME job instead of importing it a second time.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accounts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 500,
+                    "description": "Up to 500 Instagram handles (e.g. @brand) or profile links to put under watch, in order"
+                  }
+                },
+                "required": [
+                  "accounts"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body, stage arguments, or an expired pagination cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage, or the Instagram account is private.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted, a daily fair-use pause, or the data provider throttling us. The plan budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-displayOrder": 52
+      }
+    },
+    "/v1/tracking-batch-status": {
+      "post": {
+        "operationId": "tracking_batch_status",
+        "summary": "tracking_batch_status",
+        "description": "Check a bulk watch-list import by its jobId. Answers how far it has got (added / skipped / failed / still pending), what it has REALLY cost so far in credits, and the verdict on every account in the list with a machine-readable reason: 'already_tracked' (it was on the list already — not charged), 'no_slots' (the plan is full — not charged), 'not_found' (the account does not exist or is closed), 'not_attempted' (the job stopped before reaching it). Poll until finished=true, then read the accounts array. FREE and read-only. A job that stopped early says so in stopReason — 'insufficient_credits' means top up and start a new batch with the accounts that were not attempted. 'authorization_exhausted' is DIFFERENT and does not mean an empty balance: the job spent everything it was cleared to spend when it started (the roster changed under it), so simply start a new batch with the accounts that were not attempted.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string",
+                    "description": "The jobId returned by tracking_add_batch"
+                  }
+                },
+                "required": [
+                  "job_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body, stage arguments, or an expired pagination cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage, or the Instagram account is private.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted, a daily fair-use pause, or the data provider throttling us. The plan budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-displayOrder": 53
+      }
+    },
     "/v1/kb-search": {
       "post": {
         "operationId": "kb_search",
@@ -10850,7 +11177,7 @@
             }
           }
         },
-        "x-displayOrder": 52
+        "x-displayOrder": 54
       }
     },
     "/v1/reference-save": {
@@ -11007,7 +11334,7 @@
             }
           }
         },
-        "x-displayOrder": 53
+        "x-displayOrder": 55
       }
     },
     "/v1/reference-list": {
@@ -11153,7 +11480,7 @@
             }
           }
         },
-        "x-displayOrder": 54
+        "x-displayOrder": 56
       }
     },
     "/v1/reference-delete": {
@@ -11314,14 +11641,14 @@
             }
           }
         },
-        "x-displayOrder": 55
+        "x-displayOrder": 57
       }
     },
     "/v1/artifact-list": {
       "post": {
         "operationId": "artifact_list",
         "summary": "artifact_list",
-        "description": "List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the data exports their batch jobs produced. Each item carries its link, kind (cover | carousel_slide | report | batch_export), title, the group id that ties one batch together, its position within that group, and when it was created. It also says how the link must be fetched (`authMode`: `public` — open to anyone holding it; `owner` — only the owner, with this same credential, so never pass it on as a share link) and when the file stops being kept (`expiresAt`, null = kept indefinitely). Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.",
+        "description": "List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the reports, data exports and downloaded media their jobs produced. Each item carries its link, kind (cover | carousel_slide | report | batch_export | ig_export | ig_media_file), title, the group id that ties one batch together, its position within that group, and when it was created. It also says how the link must be fetched (`authMode`: `public` — open to anyone holding it; `owner` — only the owner, with this same credential, so never pass it on as a share link) and when the file stops being kept (`expiresAt`, null = kept indefinitely). Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.",
         "tags": [
           "REST"
         ],
@@ -11339,7 +11666,15 @@
                 "properties": {
                   "kind": {
                     "type": "string",
-                    "description": "Narrow to one kind: cover | carousel_slide | batch_export (optional)"
+                    "enum": [
+                      "cover",
+                      "carousel_slide",
+                      "report",
+                      "batch_export",
+                      "ig_export",
+                      "ig_media_file"
+                    ],
+                    "description": "Narrow to one kind: cover | carousel_slide | report | batch_export | ig_export | ig_media_file (optional)"
                   },
                   "limit": {
                     "type": "number",
@@ -11468,7 +11803,7 @@
             }
           }
         },
-        "x-displayOrder": 56
+        "x-displayOrder": 58
       }
     },
     "/v1/library-save-search": {
@@ -11629,7 +11964,7 @@
             }
           }
         },
-        "x-displayOrder": 57
+        "x-displayOrder": 59
       }
     },
     "/v1/library-save-item": {
@@ -11794,7 +12129,7 @@
             }
           }
         },
-        "x-displayOrder": 58
+        "x-displayOrder": 60
       }
     },
     "/v1/library-list": {
@@ -11944,7 +12279,7 @@
             }
           }
         },
-        "x-displayOrder": 59
+        "x-displayOrder": 61
       }
     },
     "/v1/skill-list": {
@@ -12085,7 +12420,7 @@
             }
           }
         },
-        "x-displayOrder": 60
+        "x-displayOrder": 62
       }
     },
     "/v1/skill-run": {
@@ -12241,14 +12576,14 @@
             }
           }
         },
-        "x-displayOrder": 61
+        "x-displayOrder": 63
       }
     },
     "/v1/skill-run-status": {
       "post": {
         "operationId": "skill_run_status",
         "summary": "skill_run_status",
-        "description": "Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs.",
+        "description": "Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs. `done` means the run finished AND its deliverable holds up: the artifact is reachable and no template substitution was left unresolved. A run whose steps all returned but whose deliverable did not settles as `partial` with an `incomplete` reason (artifact_missing | artifact_unreachable | unresolved_placeholder) — the completed outputs are still returned. NOTE that an EMPTY result is not itself a failure: Loore returns data, not conclusions, so a thin report about an account with little to say is a legitimate `done`.",
         "tags": [
           "REST"
         ],
@@ -12389,7 +12724,7 @@
             }
           }
         },
-        "x-displayOrder": 62
+        "x-displayOrder": 64
       }
     },
     "/v1/skill-create": {
@@ -12561,14 +12896,14 @@
             }
           }
         },
-        "x-displayOrder": 63
+        "x-displayOrder": 65
       }
     },
     "/v1/billing-balance": {
       "post": {
         "operationId": "get_credit_balance",
         "summary": "get_credit_balance",
-        "description": "Check how many CREDITS the user has left before running a priced tool. FREE — this call itself costs nothing and changes nothing. Returns creditsRemaining (everything still spendable: unused plan allowance plus purchased wallet), creditsIncluded (the plan's grant for the current period), creditsUsed (spent so far this period), and the period boundaries (the billing period the user PAID for — it starts on their charge date, not the 1st). All figures are in credits, the same unit the priced tools report as creditsCharged (e.g. a quick reel analysis is 1 credit, a deep one 3, a render or media download 0.5). Use it when the user asks about their balance, or before a batch of paid calls to check the budget fits.",
+        "description": "Check how many CREDITS the user has left before running a priced tool. FREE — this call itself costs nothing and changes nothing. Returns creditsRemaining (everything still spendable: unused plan allowance plus purchased wallet), creditsIncluded (the plan's grant for the current period), creditsUsed (spent so far this period), and the period boundaries (the billing period the user PAID for — it starts on their charge date, not the 1st). All figures are in credits, the same unit the priced tools report as creditsCharged (e.g. a quick reel analysis is 4 credits, a deep one 6, a render or media download 0.5). Use it when the user asks about their balance; to price a run BEFORE starting it — and learn whether it fits — ask estimate_credit_cost, which is free too.",
         "tags": [
           "REST"
         ],
@@ -12702,7 +13037,179 @@
             }
           }
         },
-        "x-displayOrder": 64
+        "x-displayOrder": 66
+      }
+    },
+    "/v1/billing-estimate": {
+      "post": {
+        "operationId": "estimate_credit_cost",
+        "summary": "estimate_credit_cost",
+        "description": "Ask what an action WOULD cost before running it, and whether it fits the balance. FREE — this call itself costs nothing, starts nothing and reserves nothing. Give it the action and how many units of it you intend to run; it answers the price of ONE unit, the estimated total, the credits remaining right now, whether the run fits, and what would be left afterwards. All figures are in credits, the same unit the priced tools report as creditsCharged and get_credit_balance reports as creditsRemaining. Use it before a batch of single-tool calls (40 reel analyses, 12 downloads) — for a BATCH JOB, ask ig_batch_quote instead, which prices a job by its subject list. Actions: analyze_reel_quick | analyze_reel_deep | reel_storyboard | reel_reference_compare | ig_analytics_express | ig_analytics_full | download_instagram_media | download_instagram_story | report_render | ig_audit_render | tracking_add | tracking_refresh | ig_followers_sample | ig_post_engagement | ig_highlights | ig_request. An action whose real charge can differ from the forecast (a private reel is never charged, a heavy Instagram endpoint bills as several requests) says so in `note` — read it before treating the total as exact.",
+        "tags": [
+          "REST"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "analyze_reel_quick",
+                      "analyze_reel_deep",
+                      "reel_storyboard",
+                      "reel_reference_compare",
+                      "ig_analytics_express",
+                      "ig_analytics_full",
+                      "download_instagram_media",
+                      "download_instagram_story",
+                      "report_render",
+                      "ig_audit_render",
+                      "tracking_add",
+                      "tracking_refresh",
+                      "ig_followers_sample",
+                      "ig_post_engagement",
+                      "ig_highlights",
+                      "ig_request"
+                    ],
+                    "description": "Which priced action to estimate: analyze_reel_quick | analyze_reel_deep | reel_storyboard | reel_reference_compare | ig_analytics_express | ig_analytics_full | download_instagram_media | download_instagram_story | report_render | ig_audit_render | tracking_add | tracking_refresh | ig_followers_sample | ig_post_engagement | ig_highlights | ig_request"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "How many units to run, 1-100000 (optional, default 1). A unit is one reel, one file, one account or one request depending on the action."
+                  }
+                },
+                "required": [
+                  "action"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success — the stage result wrapped in the standard envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body, stage arguments, or an expired pagination cursor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Out of LLM credits or plan quota exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key is not scoped for this stage, or the Instagram account is private.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner-scoped resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A durable-state conflict (idempotency-key reused with different content, part in flight, or a non-postable connection).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-plan request budget exhausted, a daily fair-use pause, or the data provider throttling us. The plan budget belongs to the ACCOUNT — every key and OAuth token of one owner shares it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Stage has no backing implementation yet.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "x-displayOrder": 67
       }
     },
     "/v1/spend-report": {
@@ -12852,7 +13359,7 @@
             }
           }
         },
-        "x-displayOrder": 65
+        "x-displayOrder": 68
       }
     },
     "/v1/partner-summary": {
@@ -12993,7 +13500,7 @@
             }
           }
         },
-        "x-displayOrder": 66
+        "x-displayOrder": 69
       }
     },
     "/v1/partner-codes": {
@@ -13134,7 +13641,7 @@
             }
           }
         },
-        "x-displayOrder": 67
+        "x-displayOrder": 70
       }
     },
     "/v1/partner-earnings": {
@@ -13284,7 +13791,7 @@
             }
           }
         },
-        "x-displayOrder": 68
+        "x-displayOrder": 71
       }
     },
     "/v1/partner-payouts": {
@@ -13434,7 +13941,7 @@
             }
           }
         },
-        "x-displayOrder": 69
+        "x-displayOrder": 72
       }
     },
     "/v1/ig-analytics/{id}": {
@@ -13568,7 +14075,7 @@
       "post": {
         "operationId": "mcp_json_rpc",
         "summary": "MCP JSON-RPC endpoint",
-        "description": "Model Context Protocol (MCP) JSON-RPC 2.0 endpoint — the URL you paste into Claude/Codex.\nSame Bearer-key auth as the REST API. It speaks three methods over a single POST:\n\n- `initialize` — handshake; negotiates the protocol version.\n- `tools/list` — advertises the tools (stages) the key may call.\n- `tools/call` — runs a tool (stage) and returns its result.\n\nTOOL RESULTS. A successful `tools/call` returns the stage payload — the same object the\nmatching `POST /v1/<stage>` puts in `result` — serialized in the text block and repeated in\n`structuredContent`. A FAILURE returns `isError: true` with the SAME failure envelope REST\nsends, `{ status: \"error\", error, details? }`, again in both the text block and\n`structuredContent`. Switch on `isError`, or on the envelope's own `status` field; never\nstring-match the text.\n\nCATALOGUE SIZE. This document contains exactly two more operations than `tools/list`\nadvertises tools: `GET /v1/ig-analytics/{id}` (a resource read, not a stage) and this `/mcp`\nendpoint itself. Every other operation is one tool, one-to-one.\n\nWHERE TO START. `tools/list` returns an ORDERED ARRAY and its order is the catalogue's, with\nthe flagship first. This document's `paths` is a JSON OBJECT, and object key order is not\nsomething a renderer or a code generator is obliged to preserve — so the order is also\npublished as data at the document root under `x-loore-catalogue-order`, and each operation\ncarries `x-displayOrder`. If you are sorting or generating from this document, use those\nrather than the order the keys happen to arrive in. The first tool is the one\nthat makes this surface different: `reel_storyboard` returns the actual FRAMES of an\nInstagram reel at timecoded positions as image links, so an agent that can look at pictures\nSEES the reel — the hook, the middle and the closing card, flagged where the shot changes —\nrather than reasoning about a text description of a video it never watched. A decision made\non frames beats a decision made on a paraphrase. `reel_reference_compare` extends that\nacross several reels and returns an addressed evidence ledger. Neither GENERATES anything:\nwe measure and hand back the evidence, and your agent writes on your side. (Measuring uses\nmachines where it must — speech is transcribed — but no prose here is written for you.)\n\nJSON-RPC does not map onto REST paths, so the tools are documented here rather than as\nseparate paths. Tools advertised by `tools/list` (for an all-access key), in catalogue order:\n\n- `reel_storyboard` — YOUR AGENT SEES THE REEL INSTEAD OF GUESSING AT IT. Cut ONE Instagram reel into a timecoded STORYBOARD and get the actual FRAMES back as first-party image links — so an agent that can look at pictures decides from what is on screen, not from someone's text summary of a video it never saw. Up to 24 frames (default 12), each at a precise timestamp with its `mm:ss.d` timecode, labelled hook / body / cta and flagged when it sits on a shot change, plus the detected shot-change times and a coverage receipt proving where the frames landed. Unlike a plain sample, the frame budget is SHARED BY SLOT — the middle of the reel (where the substance is) is always covered, never just the opening and the end card. Choose a strategy: \"uniform\" (an even grid), \"scene\" (on the shot changes) or \"hybrid\" (an even grid snapped to nearby shot changes, the default). The three CONVERGE on a reel with no detected shot change — a single take, or a soft-cut edit — because there is nothing to snap to: the answer then reports sceneCutsDetected 0, the strategy that actually ran, and says so in its note, so identical timestamps across strategies are a fact about the reel rather than a fault. The answer also states requestedFrames beside deliveredFrames; they are equal unless a position could not be read, which is reported, never hidden. Costs 1.5 credits FLAT — one price per reel whether you ask for 3 frames or 24, never per frame — and a private, deleted or undownloadable reel is never charged.\n- `reel_reference_compare` — Measure 2-5 Instagram reels and set them side by side on five axes: HOOKS (what is said in the opening seconds and how fast), STRUCTURE (beats across hook/body/closing, talk ratio, words per second), VISUAL LANGUAGE (shot changes per minute, average shot length, longest static stretch), PROOF (how many concrete figures the script actually states) and COMMENT QUALITY (length, question share, substantive share, likes — the axis reports available false with a gap of \"no_comments\" or \"unavailable\" rather than an empty sample that looks measured). Returns each reel's storyboard and read, the leader on every axis, and the EVIDENCE LEDGER — every measured fact addressed E1..En with the numbers it asserts, so YOUR agent can cite them while it writes the scenario on your side (see the reel-scenario-kit skill). Costs 2 credits PER REEL actually measured; a private or deleted reference is never charged.\n- `reel_visual_plan` — Turn a scenario into a SHOOTING plan: one shot per beat with its type (talking head, b-roll, screen recording, text card) and direction, the cutaway footage and screen captures to prepare, every burned-in overlay with the second it appears, the asset checklist, and notes for the editor. Pass the measured cadence from reel_reference_compare (reels[].read.visual) and the plan also states the edit tempo to match. Free — no provider call, no model.\n- `ig_analytics` — Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). Your own agent reads these numbers and writes the analysis — Loore returns the data, not a narrative.\n- `ig_stories` — Look up a public Instagram account's currently-live Stories (metadata only — no media is downloaded). Returns each story's posted time, media kind (image/video), duration, any @mentions, and a link-sticker URL when present, plus the total count. Honest-empty when the account has no active stories or is private.\n- `ig_highlights` — List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a cover image URL when available. Read-only; honest-empty for an account with no highlights or a private one.\n- `ig_post_engagement` — Read the engagement depth of a single public post or reel: its like/comment totals, a sample of up to 20 accounts who liked it, and the top comment threads (up to 10, each with up to 3 replies taken from the thread's preview — not the full reply history; text trimmed). Accepts a post/reel URL or its shortcode. Read-only.\n- `ig_music_trends` — Search Instagram's audio library for trending sounds to use in Reels. Returns up to 15 tracks for a query — each with title, artist, duration in seconds, an id you can reference, and two marketer signals: reels_usage shows how many reels use each sound (e.g. '322K reels') and trending flags whether it's trending in Reels right now. Read-only.\n- `ig_followers_sample` — Fetch a SAMPLE (first page, up to 30) of a public account's followers OR the accounts it follows — handles plus display names. This is a sample, not the full list; compare two accounts' samples to reason about audience overlap yourself. Read-only.\n- `ig_request` — Advanced Instagram data lookup for anything the dedicated tools don't already cover — pick one of the supported endpoints and pass its parameters. Read-only lookups only; results are size-capped. Use the dedicated tools first; reach for this for the long tail. The answer reports `partial: true` when it is not the whole story (the result was capped, or more pages exist), and carries `nextCursor` when more pages exist — pass that value back as the endpoint's page/cursor parameter to continue.\n- `ig_profile` — Look up ONE public Instagram account by handle or by numeric account id, and get a compact profile: id, handle, display name, whether it is private or verified, category, bio, external link and the follower / following / post counts. A private account still answers here (its header is public) with isPrivate true — check that before spending on its feeds. The id it returns is the cheap way to address the account in every other Instagram tool. Read-only.\n- `ig_user_reels` — List a public account's REELS as selection-ready rows: shortcode, link, author, posted time, duration and the like / comment / view counts. Built for picking candidates — no captions, no nested payload, so a full page arrives whole and every shortcode survives. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_user_posts` — List a public account's FEED POSTS (photos, carousels, videos) as selection-ready rows: shortcode, link, kind, author, posted time and the like / comment counts. Same compact row as the reels tool, so the two lists compare directly. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_media` — Read ONE public post or reel by its link or shortcode: kind, author, posted time, duration, the like / comment / view counts and its caption. Answers media: null with a note when the post is gone or not public. Read-only.\n- `ig_media_comments` — List the top-level COMMENTS on a public post or reel: comment id, author, text, likes, how many replies it has and when it was written. Address the post by link/shortcode or, cheaper, by its numeric media id. Use the comment id with the replies tool to open a thread. An empty answer means the post really has no readable comments and says so in a note — comments that exist but cannot be read come back as a failure, never as an empty page. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_comment_replies` — List the REPLIES under ONE comment on a public post: reply id, author, text, likes and when it was written. Takes the post (link/shortcode or numeric media id) plus the comment id from the comments tool. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_batch_create` — Start ONE background job that runs the same Instagram read over a whole list of subjects — the way to import hundreds of accounts or posts in a single call (up to 1000 subjects). Pick `work`: profiles / reels / posts expect ACCOUNTS (handle, profile link or numeric account id); media / comments expect PUBLICATIONS (post link or shortcode). For the paged kinds (reels, posts, comments) set `max_rows_per_subject` for how deep to go per subject (default 50, max 1000) — asking for 1000 reels really does collect a thousand, nothing is truncated. Returns a jobId immediately; it does NOT wait for the work. Poll ig_batch_status, then collect the records page by page with ig_batch_result. Each provider request costs 1 credits, and the WHOLE job is checked against the balance before it starts — an unaffordable job is refused up front and spends nothing. A job that would need more than 5000 requests is refused as too large. Re-running with the same request returns the SAME job instead of starting a second one. That exactly-once decision uses your Idempotency-Key when you send one (up to 256 characters); a longer key is dropped and the server derives its own from the request instead — still one job per identical request, but keyed by us rather than by you.  REEL FUNNEL (`work: \"reel_funnel\"`): subjects are REEL links/shortcodes and each one is ANALYZED, not just fetched. Every reel gets a quick analysis first; they are then ranked by how far each over-performed its OWN author's median, and only the top `deep_fraction` of them (default 0.2) gets the deep analysis with frames. That is the cheap way to study a big list: a quick analysis costs 4 credits and a deep one 6, so analyzing everything deeply costs several times more and takes several times longer. The result says for every reel whether it was analyzed deeply or only quickly, and where it ranked — a reel that did not make the cut is never analyzed deeply and never billed for one. Up to 100 reels per job. Ask ig_batch_quote first if the user should approve the spend.\n- `ig_batch_quote` — Ask what a batch job WOULD cost and roughly how long it would take, WITHOUT starting it. Takes exactly the same input as ig_batch_create. Free, and it starts nothing: no job, no charge. Use it before ig_batch_create whenever the user should approve the spend first — especially for `reel_funnel`, where the price depends on how many reels survive the ranking. Answers the candidate count, how many get a quick and how many a deep analysis, the split of the credits between the two passes, the total, and an estimated duration.\n- `ig_batch_status` — Check a batch job by its jobId. Returns the job status (queued | running | done | partial | failed | canceled), how many subjects are finished, failed and still pending, whether the job ended PARTIAL (some subjects collected, some not), and a per-subject list where every subject carries its own final status, how many rows it collected and — when it failed — a plain reason. A subject marked `truncated` came back SHORT of the depth you asked for (its feed had more, but the budget, the balance or a cancel ended the walk) — `truncatedItems` counts them, so a `done` job that did not reach the requested depth says so instead of pretending. Also reports what the job has actually spent so far. Read-only; polling is free. POLLING CONTRACT: wait `pollAfterSeconds` (which the answer carries) before asking again — it is 0 once the job is settled, which means stop polling. The job runs on the server and is recoverable ONLY by its jobId, so a lost connection loses nothing: if a poll fails at the transport level (a 5xx, a dropped stream, or a body that is not JSON — all of which mean the answer never reached you, never that the job broke), wait and ask again with the same jobId, doubling the wait up to a minute. The work keeps going meanwhile and ig_batch_result still returns everything it collected.\n- `ig_batch_result` — Collect a batch job's data. The records come back IN THE ANSWER, one page at a time (each record is one row tagged with the subject it belongs to, and the subjects keep the order you listed them in). A result of ANY size is collectable this way and nothing is ever truncated: the answer carries `hasMore` and, while that is true, a `nextCursor` — call again with the same job_id and that cursor to get the next page, and keep going until `hasMore` is false. `recordCount` is the total across the whole job, `count` is what this page holds, so you always know how far along you are. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Optionally, instead of paging, pass `format` (jsonl | csv) to get the WHOLE result as one downloadable file with its sha256 checksum, byte size and expiry; asking again returns the same file. That link is ours and requires an API key on the request, so it is only useful if you can send one — if your access came from CONNECTING this server rather than from a key you hold, page instead. `format` and `cursor` cannot be combined: a file already holds the whole result. Read-only and free either way. A job that is STILL RUNNING can be walked as it goes: the pages stop at the subject currently being collected and say `hasMore`, so nothing is ever skipped — poll ig_batch_status and continue with the same cursor. A settled partial job returns whatever its finished subjects collected. If you run ig_batch_retry, every cursor of that job stops working (cursor_expired) and you start the walk again from the first page — the retry can collect subjects that sit BEHIND where you already are, and a restart is the only way to see them.\n- `ig_batch_cancel` — Stop a batch job that is still queued or running. Subjects already collected are KEPT (and stay available through ig_batch_result); the remaining subjects are marked skipped and nothing further is spent on them. Cancelling a job that already finished is refused rather than pretended. Free.\n- `ig_batch_retry` — Re-attempt ONLY the subjects of a finished job that did not complete — the failed ones plus any left over from a cancel or a stop. Subjects that already succeeded are never re-fetched and never re-charged, so a retry costs only what is genuinely missing, and that remaining cost is checked against the balance before the job restarts. Refused while the job is still running. Poll ig_batch_status again afterwards.\n- `ig_followers` — List the accounts that FOLLOW a public Instagram account. Each row is a handle, its numeric account id and whether the account is private or verified — enough to pick who to look at next, without personal details. For a whole run rather than one page, set `collect` (up to 5000 rows): the answer is then a SUMMARY plus a downloadable file with its sha256 and expiry, plus a cursor to continue — never thousands of rows inline. A collection that came up SHORT says so: `summary.truncated` is true whenever fewer rows were collected than requested, `summary.stopReason` says whether the source ran out (`source_exhausted` — continuing cannot help) or this call's budget did (`call_budget` — call again with `nextCursor`), and `note` spells out what is missing. Never report a truncated collection as the whole list. A private account's follower list is refused rather than reported as empty. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_following` — List the accounts a public Instagram account FOLLOWS — the same compact rows and the same collect-into-a-file option as ig_followers. Comparing two accounts' following lists is the cheap way to find the overlap in an audience. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_search` — Search Instagram from ONE door. `kind` picks what you are looking for: accounts (handle, id, private/verified), reels (shortcode, link, author, metrics), hashtags (tag name and how many publications carry it) or places (place id, name, city, coordinates). The ids it returns are the inputs the other tools take — a place id opens ig_location_media, a tag name opens ig_hashtag_media, an account id opens every account read. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_hashtag_media` — List the publications under a HASHTAG as selection-ready rows: shortcode, link, kind, author, posted time and the like / comment / view counts. `rank` picks the feed: top (default — what Instagram ranks highest), recent (newest first) or reels (video only). The '#' is optional. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_location_media` — List the publications tagged at a PLACE, as the same compact rows as every other feed. `rank` picks top (default) or recent. Get the place id from ig_search with kind=places. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_audio` — Read ONE Instagram sound: its title, artist, duration, how many reels use it and whether it is trending right now. Address it by track_id, by canonical_id, or — most usefully — by a reel that plays it (media_url_or_code). The CANONICAL id it returns is the identity that is stable across every copy of a sound; carry it to compare sounds over time. Costs 1 credits per upstream request (addressing by a reel needs two). Read-only.\n- `ig_audio_media` — List the publications using ONE sound — the way to see a trend spread. Takes track_id (get one from ig_audio). Rows are the same compact media rows as every other feed. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_user_stories` — List an account's CURRENTLY-ACTIVE stories, each with its story id, kind, posted time, when it expires, its duration and any @-mentions on it. The story id is what ig_download takes, so this is the tool to call before fetching a story file. Answers an empty list with a reason when there are none. Costs 1 credits per upstream request — addressing the account by its numeric id is cheaper than by handle. Read-only.\n- `ig_highlights_list` — List an account's story HIGHLIGHTS: the highlight id, its title, how many items it holds and when it was created. The id opens the highlight with ig_highlight_items. Costs 1 credits per upstream request — the handle form costs several, so pass the numeric account id when you have it. Read-only.\n- `ig_highlight_items` — Read what is INSIDE one story highlight: every item with its id, kind, posted time and duration. Address the highlight by the id from ig_highlights_list or by its public link (either spelling of the id works — with or without a \"highlight:\" prefix). Costs 1 credits per upstream request. Read-only.\n- `ig_resolve` — Say WHAT an Instagram link is and give back its canonical identifier. Takes any public link — a post or reel, a story, a highlight, a share link or a profile — and answers the kind plus the id (and shortcode, and owner handle) the other tools take. For a post or reel it also states mediaFormat — \"reel\", \"post\", or \"unknown\" when the answer does not say — and contentType (image, video or carousel), so you can route a reel to the reel tools without opening it first. A share link is followed through to the post it points at, and the answer reports both what you gave and what it turned out to be. Use it whenever a user hands you a link you cannot classify. Costs 1 credits; a link that is not a recognizable Instagram address is rejected for free. Read-only.\n- `ig_download` — Download the actual FILE of a public Instagram photo, video or story and store it as a private artifact: the answer carries a download link, the file's sha256 checksum, its byte size and its expiry. The link is ours and requires your API key — treat it as private data. Address a post or reel by link (use `index` to pick a carousel slide), or a story by its link or its story id from ig_user_stories. Costs 0.5 credits per delivered file — a private, unavailable or too-large item is never charged.\n- `download_instagram_media` — Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. Use this when the user wants the FILE itself (to repost/save) — distinct from reading a post's data. Only public posts; delivered privately to the user. One item per call: a reel or a single-photo post (a carousel sends its first item). Costs 0.5 credits per delivered file — a private, unavailable or too-large item is never charged.\n- `download_instagram_story` — Download and SEND the actual video/photo FILE of an Instagram STORY to the user in this chat. Use this when the user wants the story FILE itself (to repost/save) — distinct from reading a story's data. Only public stories; delivered privately to the user. One story per call. Costs 0.5 credits per delivered file — a private, unavailable or too-large story is never charged.\n- `analyze_reel` — Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images (hook/CTA/scene) for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames) and costs 4 credits; depth=deep costs 6 credits. Charged only when the analysis actually lands — a failed, private or not-found reel is never charged.\n- `report_render` — Turn a finished analysis into a BRANDED, ready-to-send report FILE from GENERIC structured content (title, metric tiles, markdown sections + tables) and return its link(s). For an Instagram ACCOUNT audit a dedicated branded HTML audit report exists separately; this tool is for generic structured reports (and an IG-audit PDF when one is explicitly wanted). Pass structured content: a title, optional subtitle + meta (account handle, period), up to 8 headline metric tiles, and 1-12 sections — each with a markdown body (**bold**, *italic*, `code`, - lists) and/or a structured table (columns + rows). The file carries the Loore branding (mascot, wordmark, footer) so a forwarded report advertises the agent. Set format to html, pdf, or both (default both). Costs a flat 0.5 credits per call, charged once whether you asked for html, pdf, or both. Deliver the returned link to the user as a document — never paste it as raw text.\n- `ig_audit_render` — Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. The report shows the profile + engagement, content mix, the top reels and carousels (with cover thumbnails, metrics, and why each worked), what works (best days/time/hooks), top hashtags, and a verdict with recommendations. The file carries the Loore branding so a forwarded report advertises the agent. Costs a flat 0.5 credits per call. Deliver the returned link to the user as a document — never paste it as raw text.\n- `carousel_prompt` — Return a ready-to-use prompt for a 6-slide Instagram carousel — YOUR OWN model generates the carousel from it (Loore spends no credits here). The prompt asks for JSON matching Loore's carousel shape, so the result pastes straight back in.\n- `miner_search` — Find what's going viral in an Instagram niche: start a background scan that mines top public creators and their best-performing reels for a niche you name, building the user's competitive base to analyze. Provide EXACTLY ONE of niche_query or run_id per call — never both, never neither. Pass niche_query (a niche or topic phrase, 3-100 chars) to START a scan — it returns a run id and a queued status (if a scan is already in progress you get THAT pending run back instead of a new one). Pass that run id back as run_id to CHECK the scan's progress until it is done. max_profiles bounds how many creators to enrich (integer 1-300, default 10; only valid with niche_query — pass the exact number the user asked for, e.g. 50). The per-scan cap is 300 on EVERY plan; the real ceiling is the user's daily research allowance (a big scan may exceed today's budget — the returned note says how many can be collected today, so scan in batches). A single scan of one niche often yields fewer than asked: to reach N, run FOLLOW-UP scans with DIFFERENT niche phrasings (synonyms, sub-niches, adjacent topics) — never repeat the identical niche_query expecting new results.\n- `miner_fired_reels` — List which of the user's tracked competitor reels fired recently — clips that suddenly outperformed their author's usual numbers — newest fire first. Each item carries the reel's link, author handle, play count, plays-per-hour velocity (null when the publish time is unknown), a short caption excerpt, and when it fired. limit caps the count (1-20, default 20). Read-only.\n- `miner_fired_posts` — List which of the user's tracked competitor POSTS fired recently — photos and carousels whose likes suddenly outran their author's usual numbers — newest fire first. Each item carries the post's link, author handle, likes, comments, whether it is a photo or a carousel, a short caption excerpt, and when it fired. Posts have no view count, so none is reported. Use miner_fired_reels for reels. limit caps the count (1-20, default 20). Read-only.\n- `miner_insights` — Read everything the user has mined about a niche. Returns the competitor roster (competitors: the actual mined accounts, biggest first — handle, follower count, name, category, verified, how many reels each appeared in, whether tracked), the top reels by play count (topReels: each with a link, author handle, plays/likes/comments, publish time, and caption excerpt), the base totals, the velocity outliers (reels far above their author's median), the busiest posting hours (in UTC), and the fastest-growing tracked accounts — all RAW numbers for your own agent to analyze. Call this after a miner_search scan reaches status 'done' to LIST the competitors and their best reels. roster_limit (1-300, optional, default 20) bounds how many competitor rows come back — leave it default for a normal look; pass a high value (up to 300) ONLY when building a full competitor REPORT that needs the whole base. No new mining and no credit spend — read-only.\n- `miner_track` — Add a competitor to the user's daily tracking so their new reels are watched for breakouts. Give an Instagram handle or profile link; the account must already be in the user's mined base (run a niche scan with miner_search first if it isn't). Respects the user's plan tracking cap and is reversible. Returns whether tracking is now on, or a reason it isn't (not in the base, or the tracking cap is reached).\n- `tracking_list` — List every Instagram account the user watches, with the plan's watch-slot header (used / max — max is null on an unlimited plan) and, per account, its handle, name, follower count, whether it is active or paused, whether the nightly auto-update is on, when it was last collected, and when it was added. Read this before adding or removing anything — it is the only honest source of how many slots are left. Takes no arguments and is FREE: read-only, no new data is collected.\n- `tracking_feed` — Read what the watched accounts have published, merged into one ranked feed. Each item carries the publication's link, the author's handle, whether it is a reel or a post, a caption excerpt, the publish time, plays/likes/comments, and how many times the author's OWN median it did (ratioToMedian — that is the breakout signal). filter picks the ranking: 'new' (default, newest first), 'views' (best-performing first across the whole feed) or 'anomalous' (only the breakouts, biggest ratio first). kind narrows to 'reel' or 'post'. limit sets the page size (1-50, default 12). When more rows exist the answer carries nextCursor — pass it back as cursor to get the next page, WITHOUT changing filter or kind (a cursor belongs to the ranking that produced it and is refused otherwise). FREE and read-only.\n- `tracking_add` — Put an Instagram account under WATCH so its new posts and reels keep flowing into the user's tracking feed. Give a handle or a profile link. On success the account is watched and its recent publications are collected immediately, so tracking_feed has something to show at once. Costs 2 credits per account added — nothing is charged when the add is refused. The user's plan grants a fixed number of watch slots: when they are used up the answer is added=false with reason='no_slots' and the plan's real numbers, so tell the user to free a slot with tracking_remove or upgrade — never retry the same add. An account already watched answers added=false with reason='already_tracked'. Read the roster first with tracking_list.\n- `tracking_refresh` — Collect ONE watched account's newest publications right now, instead of waiting for the nightly update. Give a handle or profile link of an account already watched. Costs 1 credits per refresh — nothing is charged when it is refused. An account that is not watched answers refreshed=false with reason='not_tracked' (add it first); a paused one answers reason='paused' (resume it first). Read the result through tracking_feed.\n- `tracking_pause` — Park a watched account: it stops being refreshed (and stops costing anything) but KEEPS its watch slot and everything already collected stays in the feed. FREE and reversible with tracking_resume. Use tracking_remove instead when the user wants the slot back. An account that is not watched answers status='not_tracked'.\n- `tracking_resume` — Put a paused account back under watch so it is refreshed again. FREE. An account that is not watched answers status='not_tracked'.\n- `tracking_remove` — Stop watching an Instagram account and drop the publications collected for it. This is the ONLY way a watch slot is freed — pausing keeps the slot. FREE. Removing an account that is not watched answers removed=false with reason='not_tracked' rather than failing, so it is safe to repeat.\n- `kb_search` — Search the user's OWN knowledge base for passages relevant to a query, to ground your answer in their uploaded documents. Returns the top matching chunks (content + source file id + similarity distance). Read-only retrieval over the user's own data.\n- `reference_save` — Save the user's supplied images as visual reference assets — face photos, cover-style references, or a logo — to reuse in future image generations. Send 1-5 images per call as data: URLs under a single kind (face | style | logo); each is validated and stored (an identical image sent again is reused, not duplicated). Set replaceExisting to first clear all existing assets of that kind. Returns a per-image outcome (saved | reused | rejected) plus the active counts per kind afterwards.\n- `reference_list` — List the user's stored visual reference assets (id, kind, label, dimensions, size, created/last-used timestamps), newest first. Optionally narrow to one kind (face | style | logo). Read-only.\n- `reference_delete` — Delete the user's stored reference assets. Pass EXACTLY ONE selector per call: id (one asset), ids (a batch of up to 50 asset ids in ONE call), kind (every stored asset of that kind: face | style | logo), or all=true (every stored reference asset). When the user asks to delete several or ALL references («удали все»), make ONE call with ids, kind, or all — NEVER loop one-by-one with id. Selector choice: the user points at specific listed items they can see («удали эти», «все 9») → ids from the listing; the user means the current category («удали все лица») → kind; all=true ONLY on explicit GLOBAL intent covering every kind («удали вообще все референсы»). Idempotent: an unknown, foreign, or already-deleted id is reported as deleted=false, never an error. Returns exact counts (deleted / notFound, per-id results for ids) plus the remaining active counts per kind, so report the resulting state precisely.\n- `artifact_list` — List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the data exports their batch jobs produced. Each item carries its link, kind (cover | carousel_slide | report | batch_export), title, the group id that ties one batch together, its position within that group, and when it was created. It also says how the link must be fetched (`authMode`: `public` — open to anyone holding it; `owner` — only the owner, with this same credential, so never pass it on as a share link) and when the file stops being kept (`expiresAt`, null = kept indefinitely). Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.\n- `library_save_search` — Keep a search on the user's own library shelf so they can return to it later: what was searched (accounts, reels, posts or hashtags) and the exact query. Saving the same query again does not duplicate it — it counts the revisit. Optionally file it under a folder name such as a niche; the folder is created on first use.\n- `library_save_item` — Put one thing aside on the user's library shelf: a profile, a reel, a post or a hashtag. Pass the handle, the shortcode or the hashtag as the reference. Add a title the user will recognise and a note on why it was kept. Keeping the same thing again refreshes it instead of duplicating it.\n- `library_list` — Read the user's own library: the searches they kept (with how often they returned to each one and when it last ran) and the profiles, reels, posts and hashtags they put aside with their notes. Use this before searching anew — the user may already have what they need. Read-only.\n- `skill_list` — List the skills the user can run — reusable, named recipes over this same tool surface. Each entry carries its slug, name, a short line on WHAT it does and WHEN to use it, the inputs to gather, and a `card`: the full RECIPE (`card.recipe` — which of these tools it calls, in order, with which arguments and what each step yields), the FORM of the result (`card.returns`), the MAX credits one run may charge (`card.creditsMax`) and a rough duration. So you can judge a skill, and reproduce it call by call with your own parameters, WITHOUT running it. Read-only, FREE.\n- `skill_run` — Run one of the user's skills by its slug, passing the inputs it declared. Starts an async run and returns a runId + status (queued); poll skill-run-status for the result (which may carry generated media). Runs are idempotent: over MCP a call with identical slug+inputs replays the SAME run — pass a new `nonce` to force a fresh run of the same skill with the same inputs.\n- `skill_run_status` — Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs.\n- `skill_create` — Create a new custom skill for the key owner from a config: a name, a url-safe slug (its /command), a one-line description, the inputs to gather (JSON-schema object), the pipeline steps (each an id + an allowlisted stage + a templated input), and the output projection. Validated against the SAME schema, allowlist and collision rules the runner enforces, so anything created is runnable. On success returns the created skill summary; on a validation/collision problem returns a structured error (in the 200 body) to correct and retry. Returns [] semantics — a domain error — when the skills system is disabled.\n- `get_credit_balance` — Check how many CREDITS the user has left before running a priced tool. FREE — this call itself costs nothing and changes nothing. Returns creditsRemaining (everything still spendable: unused plan allowance plus purchased wallet), creditsIncluded (the plan's grant for the current period), creditsUsed (spent so far this period), and the period boundaries (the billing period the user PAID for — it starts on their charge date, not the 1st). All figures are in credits, the same unit the priced tools report as creditsCharged (e.g. a quick reel analysis is 1 credit, a deep one 3, a render or media download 0.5). Use it when the user asks about their balance, or before a batch of paid calls to check the budget fits.\n- `get_spend_report` — See WHERE the user's credits went during the current billing period. FREE — this call itself costs nothing and changes nothing. Returns the period totals (creditsSpent net of refunds, how many operations ran, how many succeeded, creditsRefunded for the ones that failed, and the average per day), a breakdown by kind of work (account analysis, reel analysis, tracking, storyboard, download, other), a per-day series, and the most recent operations with what was requested, which account or reel it was about, and which client asked (this key, an MCP client, or the cabinet). Optionally narrow to one UTC day with `day`. All figures are in credits, the same unit the priced tools report as creditsDebited. DAYS ARE UTC CALENDAR DAYS — every bucket, the `day` filter and the daily series use UTC, not the caller's local zone and not the server's. The period totals reconcile exactly with the series: creditsSpent equals the sum of the daily credits for the same period, so an agent can add up the days and get the headline. A day can be NEGATIVE when a refund lands later than the charge it reverses. Figures are read live at call time — an operation appears here as soon as it is billed, which is after the work succeeds, so a still-running call is not yet counted. Use it to explain a bill, to find what is draining the budget, or to check spend before starting another batch.\n- `get_partner_summary` — Get the caller's PARTNER-PROGRAM standing and running totals: status, commission percent, clicks on their referral links, referred registrations, paying customers, and the money — accrued, paid out, and still owed (all in kopecks, currency RUB). FREE — this call costs nothing and changes nothing. Returns isPartner=false for an account that is not in the program. Payouts are MANUAL: an operator transfers the money and records it; nothing here can request or trigger a payout.\n- `list_partner_codes` — List the caller's own PARTNER promo codes and referral links — the code text, its discount, how many people redeemed it, and for each link the full shareable URL plus its clicks and referred registrations. FREE. Use it when the user asks «what's my link» or wants something to post. Returns empty lists for an account that is not in the partner program.\n- `list_partner_earnings` — List the caller's PARTNER commission history, newest first, paginated. Each row carries a SIGNED amount in kopecks — positive is a commission booked on a customer's payment, negative is that commission taken back after a refund — plus the payment it was computed from, the rate applied, and an OPAQUE reference for the referred customer (never their identity). FREE. Pass `cursor` from the previous response to continue; `limit` defaults to 20, max 100.\n- `list_partner_payouts` — List the MANUAL payouts recorded for the caller as a partner, newest first, paginated: amount in kopecks, how it was sent, the operator's transfer reference and when. FREE. These are records of transfers a human already made — nothing in the API moves money. Pass `cursor` to continue; `limit` defaults to 20, max 100.",
+        "description": "Model Context Protocol (MCP) JSON-RPC 2.0 endpoint — the URL you paste into Claude/Codex.\nSame Bearer-key auth as the REST API. It speaks three methods over a single POST:\n\n- `initialize` — handshake; negotiates the protocol version.\n- `tools/list` — advertises the tools (stages) the key may call.\n- `tools/call` — runs a tool (stage) and returns its result.\n\nTOOL RESULTS. A successful `tools/call` returns the stage payload — the same object the\nmatching `POST /v1/<stage>` puts in `result` — serialized in the text block and repeated in\n`structuredContent`. A FAILURE returns `isError: true` with the SAME failure envelope REST\nsends, `{ status: \"error\", error, details? }`, again in both the text block and\n`structuredContent`. Switch on `isError`, or on the envelope's own `status` field; never\nstring-match the text.\n\nCATALOGUE SIZE. This document contains exactly two more operations than `tools/list`\nadvertises tools: `GET /v1/ig-analytics/{id}` (a resource read, not a stage) and this `/mcp`\nendpoint itself. Every other operation is one tool, one-to-one.\n\nWHERE TO START. `tools/list` returns an ORDERED ARRAY and its order is the catalogue's, with\nthe flagship first. This document's `paths` is a JSON OBJECT, and object key order is not\nsomething a renderer or a code generator is obliged to preserve — so the order is also\npublished as data at the document root under `x-loore-catalogue-order`, and each operation\ncarries `x-displayOrder`. If you are sorting or generating from this document, use those\nrather than the order the keys happen to arrive in. The first tool is the one\nthat makes this surface different: `reel_storyboard` returns the actual FRAMES of an\nInstagram reel at timecoded positions as image links, so an agent that can look at pictures\nSEES the reel — the hook, the middle and the closing card, flagged where the shot changes —\nrather than reasoning about a text description of a video it never watched. A decision made\non frames beats a decision made on a paraphrase. `reel_reference_compare` extends that\nacross several reels and returns an addressed evidence ledger. Neither GENERATES anything:\nwe measure and hand back the evidence, and your agent writes on your side. (Measuring uses\nmachines where it must — speech is transcribed — but no prose here is written for you.)\n\nJSON-RPC does not map onto REST paths, so the tools are documented here rather than as\nseparate paths. Tools advertised by `tools/list` (for an all-access key), in catalogue order:\n\n- `reel_storyboard` — YOUR AGENT SEES THE REEL INSTEAD OF GUESSING AT IT. Cut ONE Instagram reel into a timecoded STORYBOARD and get the actual FRAMES back as first-party image links — so an agent that can look at pictures decides from what is on screen, not from someone's text summary of a video it never saw. Up to 24 frames (default 12), each at a precise timestamp with its `mm:ss.d` timecode, labelled hook / body / cta and flagged when it sits on a shot change, plus the detected shot-change times and a coverage receipt proving where the frames landed. Unlike a plain sample, the frame budget is SHARED BY SLOT — the middle of the reel (where the substance is) is always covered, never just the opening and the end card. Choose a strategy: \"uniform\" (an even grid), \"scene\" (on the shot changes) or \"hybrid\" (an even grid snapped to nearby shot changes, the default). The three CONVERGE on a reel with no detected shot change — a single take, or a soft-cut edit — because there is nothing to snap to: the answer then reports sceneCutsDetected 0, the strategy that actually ran, and says so in its note, so identical timestamps across strategies are a fact about the reel rather than a fault. The answer also states requestedFrames beside deliveredFrames; they are equal unless a position could not be read, which is reported, never hidden. Costs 1.5 credits FLAT — one price per reel whether you ask for 3 frames or 24, never per frame — and a private, deleted or undownloadable reel is never charged.\n- `reel_reference_compare` — Measure 2-5 Instagram reels and set them side by side on five axes: HOOKS (what is said in the opening seconds and how fast), STRUCTURE (beats across hook/body/closing, talk ratio, words per second), VISUAL LANGUAGE (shot changes per minute, average shot length, longest static stretch), PROOF (how many concrete figures the script actually states) and COMMENT QUALITY (length, question share, substantive share, likes — the axis reports available false with a gap of \"no_comments\" or \"unavailable\" rather than an empty sample that looks measured). Returns each reel's storyboard and read, the leader on every axis, and the EVIDENCE LEDGER — every measured fact addressed E1..En with the numbers it asserts, so YOUR agent can cite them while it writes the scenario on your side (see the reel-scenario-kit skill). Costs 2 credits PER REEL actually measured; a private or deleted reference is never charged.\n- `reel_visual_plan` — Turn a scenario into a SHOOTING plan: one shot per beat with its type (talking head, b-roll, screen recording, text card) and direction, the cutaway footage and screen captures to prepare, every burned-in overlay with the second it appears, the asset checklist, and notes for the editor. Pass the measured cadence from reel_reference_compare (reels[].read.visual) and the plan also states the edit tempo to match. Free — no provider call, no model.\n- `ig_analytics` — Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). Your own agent reads these numbers and writes the analysis — Loore returns the data, not a narrative.\n- `ig_stories` — Look up a public Instagram account's currently-live Stories (metadata only — no media is downloaded). Returns each story's posted time, media kind (image/video), duration, any @mentions, and a link-sticker URL when present, plus the total count. Honest-empty when the account has no active stories or is private.\n- `ig_highlights` — List a public Instagram account's Story Highlights (up to 20): each highlight's title, how many items it holds, and a COVER IMAGE URL when the account's tray carries one. Costs 3 credits: reading a tray by handle costs three upstream requests, whatever it looks like. It does NOT return highlight ids, so you cannot open a highlight afterwards. ig_highlights_list answers the same question for the same price when you address the account by handle — cheaper if you pass a numeric account id — and it returns the ids ig_highlight_items takes, but no cover images. So: call THIS one when you want the covers, and ig_highlights_list when you need to open a highlight or already hold the account id. Read-only; honest-empty for an account with no highlights or a private one (an empty tray is not billed).\n- `ig_post_engagement` — Read the engagement depth of a single public post or reel: its like/comment totals, a sample of up to 20 accounts who liked it, and the top comment threads (up to 10, each with up to 3 replies taken from the thread's preview — not the full reply history; text trimmed). Accepts a post/reel URL or its shortcode. Read-only.\n- `ig_music_trends` — Search Instagram's audio library for trending sounds to use in Reels. Returns up to 15 tracks for a query — each with title, artist, duration in seconds, an id you can reference, and two marketer signals: reels_usage shows how many reels use each sound (e.g. '322K reels') and trending flags whether it's trending in Reels right now. Read-only.\n- `ig_followers_sample` — Fetch a SAMPLE (first page, up to 30) of a public account's followers OR the accounts it follows — handles plus display names. This is a sample, not the full list; compare two accounts' samples to reason about audience overlap yourself. Read-only.\n- `ig_request` — Advanced Instagram data lookup for anything the dedicated tools don't already cover — pick one of the supported endpoints and pass its parameters. Read-only lookups only; results are size-capped. Use the dedicated tools first; reach for this for the long tail. The answer reports `partial: true` when it is not the whole story (the result was capped, or more pages exist), and carries `nextCursor` when more pages exist — pass that value back as the endpoint's page/cursor parameter to continue.\n- `ig_profile` — Look up ONE public Instagram account by handle or by numeric account id, and get a compact profile: id, handle, display name, whether it is private or verified, category, bio, external link and the follower / following / post counts. A private account still answers here (its header is public) with isPrivate true — check that before spending on its feeds. The id it returns is the cheap way to address the account in every other Instagram tool. Read-only.\n- `ig_user_reels` — List a public account's REELS as selection-ready rows: shortcode, link, author, posted time, duration and the like / comment / view counts. Built for picking candidates — no captions, no nested payload, so a full page arrives whole and every shortcode survives. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_user_posts` — List a public account's FEED POSTS (photos, carousels, videos) as selection-ready rows: shortcode, link, kind, author, posted time and the like / comment counts. Same compact row as the reels tool, so the two lists compare directly. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_media` — Read ONE public post or reel by its link or shortcode: kind, author, posted time, duration, the like / comment / view counts and its caption. Answers media: null with a note when the post is gone or not public. Read-only.\n- `ig_media_comments` — List the top-level COMMENTS on a public post or reel: comment id, author, text, likes, how many replies it has and when it was written. Address the post by link/shortcode or, cheaper, by its numeric media id. Use the comment id with the replies tool to open a thread. An empty answer means the post really has no readable comments and says so in a note — comments that exist but cannot be read come back as a failure, never as an empty page. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_comment_replies` — List the REPLIES under ONE comment on a public post: reply id, author, text, likes and when it was written. Takes the post (link/shortcode or numeric media id) plus the comment id from the comments tool. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk (the same handle, or the same id): naming a different one is refused rather than quietly continuing the first. Read-only.\n- `ig_batch_create` — Start ONE background job that runs the same Instagram read over a whole list of subjects — the way to import hundreds of accounts or posts in a single call (up to 1000 subjects). Pick `work`: profiles / reels / posts expect ACCOUNTS (handle, profile link or numeric account id); media / comments expect PUBLICATIONS (post link or shortcode). For the paged kinds (reels, posts, comments) set `max_rows_per_subject` for how deep to go per subject (default 50, max 1000) — asking for 1000 reels really does collect a thousand, nothing is truncated. Returns a jobId immediately; it does NOT wait for the work. Poll ig_batch_status, then collect the records page by page with ig_batch_result. Each provider request costs 1 credits, and the WHOLE job is checked against the balance before it starts — an unaffordable job is refused up front and spends nothing. A job that would need more than 5000 requests is refused as too large. Re-running with the same request returns the SAME job instead of starting a second one. That exactly-once decision uses your Idempotency-Key when you send one (up to 256 characters); a longer key is dropped and the server derives its own from the request instead — still one job per identical request, but keyed by us rather than by you.  REEL FUNNEL (`work: \"reel_funnel\"`): subjects are REEL links/shortcodes and each one is ANALYZED, not just fetched. Every reel gets a quick analysis first; they are then ranked by how far each over-performed its OWN author's median, and only the top `deep_fraction` of them (default 0.2) gets the deep analysis with frames. That is the cheap way to study a big list: a quick analysis costs 4 credits and a deep one 6, so analyzing everything deeply costs several times more and takes several times longer. The result says for every reel whether it was analyzed deeply or only quickly, and where it ranked — a reel that did not make the cut is never analyzed deeply and never billed for one. Up to 100 reels per job. Ask ig_batch_quote first if the user should approve the spend.\n- `ig_batch_quote` — Ask what a batch job WOULD cost and roughly how long it would take, WITHOUT starting it. Takes exactly the same input as ig_batch_create. Free, and it starts nothing: no job, no charge. Use it before ig_batch_create whenever the user should approve the spend first — especially for `reel_funnel`, where the price depends on how many reels survive the ranking. Answers the candidate count, how many get a quick and how many a deep analysis, the split of the credits between the two passes, the total, and an estimated duration.\n- `ig_batch_status` — Check a batch job by its jobId. Returns the job status (queued | running | done | partial | failed | canceled), how many subjects are finished, failed and still pending, whether the job ended PARTIAL (some subjects collected, some not), and a per-subject list where every subject carries its own final status, how many rows it collected and — when it failed — a plain reason. A subject marked `truncated` came back SHORT of the depth you asked for (its feed had more, but the budget, the balance or a cancel ended the walk) — `truncatedItems` counts them, so a `done` job that did not reach the requested depth says so instead of pretending. Also reports what the job has actually spent so far. Read-only; polling is free. POLLING CONTRACT: wait `pollAfterSeconds` (which the answer carries) before asking again — it is 0 once the job is settled, which means stop polling. The job runs on the server and is recoverable ONLY by its jobId, so a lost connection loses nothing: if a poll fails at the transport level (a 5xx, a dropped stream, or a body that is not JSON — all of which mean the answer never reached you, never that the job broke), wait and ask again with the same jobId, doubling the wait up to a minute. The work keeps going meanwhile and ig_batch_result still returns everything it collected.\n- `ig_batch_result` — Collect a batch job's data. The records come back IN THE ANSWER, one page at a time (each record is one row tagged with the subject it belongs to, and the subjects keep the order you listed them in). A result of ANY size is collectable this way and nothing is ever truncated: the answer carries `hasMore` and, while that is true, a `nextCursor` — call again with the same job_id and that cursor to get the next page, and keep going until `hasMore` is false. `recordCount` is the total across the whole job, `count` is what this page holds, so you always know how far along you are. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Optionally, instead of paging, pass `format` (jsonl | csv) to get the WHOLE result as one downloadable file with its sha256 checksum, byte size and expiry; asking again returns the same file. That link is ours and requires an API key on the request, so it is only useful if you can send one — if your access came from CONNECTING this server rather than from a key you hold, page instead. `format` and `cursor` cannot be combined: a file already holds the whole result. Read-only and free either way. A job that is STILL RUNNING can be walked as it goes: the pages stop at the subject currently being collected and say `hasMore`, so nothing is ever skipped — poll ig_batch_status and continue with the same cursor. A settled partial job returns whatever its finished subjects collected. If you run ig_batch_retry, every cursor of that job stops working (cursor_expired) and you start the walk again from the first page — the retry can collect subjects that sit BEHIND where you already are, and a restart is the only way to see them.\n- `ig_batch_cancel` — Stop a batch job that is still queued or running. Subjects already collected are KEPT (and stay available through ig_batch_result); the remaining subjects are marked skipped and nothing further is spent on them. Cancelling a job that already finished is refused rather than pretended. Free.\n- `ig_batch_retry` — Re-attempt ONLY the subjects of a finished job that did not complete — the failed ones plus any left over from a cancel or a stop. Subjects that already succeeded are never re-fetched and never re-charged, so a retry costs only what is genuinely missing, and that remaining cost is checked against the balance before the job restarts. Refused while the job is still running. Poll ig_batch_status again afterwards.\n- `ig_followers` — List the accounts that FOLLOW a public Instagram account. Each row is a handle, its numeric account id and whether the account is private or verified — enough to pick who to look at next, without personal details. For a whole run rather than one page, set `collect` (up to 5000 rows): the answer is then a SUMMARY plus a downloadable file with its sha256 and expiry, plus a cursor to continue — never thousands of rows inline. A collection that came up SHORT says so: `summary.truncated` is true whenever fewer rows were collected than requested, `summary.stopReason` says whether the source ran out (`source_exhausted` — continuing cannot help) or this call's budget did (`call_budget` — call again with `nextCursor`), and `note` spells out what is missing. Never report a truncated collection as the whole list. A private account's follower list is refused rather than reported as empty. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_following` — List the accounts a public Instagram account FOLLOWS — the same compact rows and the same collect-into-a-file option as ig_followers. Comparing two accounts' following lists is the cheap way to find the overlap in an audience. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_search` — Search Instagram from ONE door. `kind` picks what you are looking for: accounts (handle, id, private/verified), reels (shortcode, link, author, metrics), hashtags (tag name and how many publications carry it) or places (place id, name, city, coordinates). The ids it returns are the inputs the other tools take — a place id opens ig_location_media, a tag name opens ig_hashtag_media, an account id opens every account read. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_hashtag_media` — List the publications under a HASHTAG as selection-ready rows: shortcode, link, kind, author, posted time and the like / comment / view counts. `rank` picks the feed: top (default — what Instagram ranks highest), recent (newest first) or reels (video only). The '#' is optional. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_location_media` — List the publications tagged at a PLACE, as the same compact rows as every other feed. `rank` picks top (default) or recent. Get the place id from ig_search with kind=places. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_audio` — Read ONE Instagram sound: its title, artist, duration, how many reels use it and whether it is trending right now. Address it by track_id, by canonical_id, or — most usefully — by a reel that plays it (media_url_or_code). The CANONICAL id it returns is the identity that is stable across every copy of a sound; carry it to compare sounds over time. Costs 1 credits per upstream request (addressing by a reel needs two). Read-only.\n- `ig_audio_media` — List the publications using ONE sound — the way to see a trend spread. Takes track_id (get one from ig_audio). Rows are the same compact media rows as every other feed. Paginated: ask for up to 50 rows with limit (default 20); the answer carries count, hasMore and, when hasMore is true, an opaque cursor - pass it back unchanged as cursor to continue. dedupeKey names the field that identifies a row uniquely; rows keep the source's ranking. A cursor belongs to the read and the subject that issued it and stays valid for 6 hours from the moment it was issued - reusing it elsewhere, or later than that, is refused with cursor_expired and you restart the walk from page one without a cursor. Address the subject the same way on every page of one walk. Each page costs 1 credits per upstream request it needs; the answer reports what it actually spent. Read-only.\n- `ig_user_stories` — List an account's CURRENTLY-ACTIVE stories, each with its story id, kind, posted time, when it expires, its duration and any @-mentions on it. The story id is what ig_download takes, so this is the tool to call before fetching a story file. Answers an empty list with a reason when there are none. Costs 1 credits per upstream request — addressing the account by its numeric id is cheaper than by handle. Read-only.\n- `ig_highlights_list` — List an account's story HIGHLIGHTS: the highlight id, its title, how many items it holds and when it was created. The id opens the highlight with ig_highlight_items — that id is the main reason to reach for this tool. Costs 1 credits per upstream request — the handle form costs several, so pass the numeric account id when you have it. ig_highlights answers the neighbouring question — titles, item counts and COVER IMAGES, no ids — and by handle it costs the same as this one, so choose between them by what you need back rather than by price: ids and creation times here, cover images there. Read-only.\n- `ig_highlight_items` — Read what is INSIDE one story highlight: every item with its id, kind, posted time and duration. Address the highlight by the id from ig_highlights_list or by its public link (either spelling of the id works — with or without a \"highlight:\" prefix). Costs 1 credits per upstream request. Read-only.\n- `ig_resolve` — Say WHAT an Instagram link is and give back its canonical identifier. Takes any public link — a post or reel, a story, a highlight, a share link or a profile — and answers the kind plus the id (and shortcode, and owner handle) the other tools take. For a post or reel it also states mediaFormat — \"reel\", \"post\", or \"unknown\" when the answer does not say — and contentType (image, video or carousel), so you can route a reel to the reel tools without opening it first. A share link is followed through to the post it points at, and the answer reports both what you gave and what it turned out to be. Use it whenever a user hands you a link you cannot classify. Costs 1 credits; a link that is not a recognizable Instagram address is rejected for free. Read-only.\n- `ig_download` — Download the actual FILE of a public Instagram photo, video or story and store it as a private artifact: the answer carries a download link, the file's sha256 checksum, its byte size and its expiry. The link is ours and requires your API key — treat it as private data. Address a post or reel by link (use `index` to pick a carousel slide), or a story by its link or its story id from ig_user_stories. Costs 0.5 credits per delivered file — a private, unavailable or too-large item is never charged.\n- `download_instagram_media` — Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. Use this when the user wants the FILE itself (to repost/save) — distinct from reading a post's data. Only public posts; delivered privately to the user. One item per call: a reel or a single-photo post (a carousel sends its first item). Costs 0.5 credits per delivered file — a private, unavailable or too-large item is never charged.\n- `download_instagram_story` — Download and SEND the actual video/photo FILE of an Instagram STORY to the user in this chat. Use this when the user wants the story FILE itself (to repost/save) — distinct from reading a story's data. Only public stories; delivered privately to the user. One story per call. Costs 0.5 credits per delivered file — a private, unavailable or too-large story is never charged.\n- `analyze_reel` — Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images, each labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. Loore returns the data; you write the разбор. Use when the user sends a reel link. depth=quick returns metrics + baseline + transcript only (no frames) and costs 4 credits; depth=deep costs 6 credits. Charged only when the analysis actually lands — a failed, private or not-found reel is never charged.\n- `report_render` — Turn a finished analysis into a BRANDED, ready-to-send report FILE from GENERIC structured content (title, metric tiles, markdown sections + tables) and return its link(s). For an Instagram ACCOUNT audit a dedicated branded HTML audit report exists separately; this tool is for generic structured reports (and an IG-audit PDF when one is explicitly wanted). Pass structured content: a title, optional subtitle + meta (account handle, period), up to 8 headline metric tiles, and 1-12 sections — each with a markdown body (**bold**, *italic*, `code`, - lists) and/or a structured table (columns + rows). The file carries the Loore branding (mascot, wordmark, footer) so a forwarded report advertises the agent. Set format to html, pdf, or both (default both). Costs a flat 0.5 credits per call, charged once whether you asked for html, pdf, or both. Deliver the returned link to the user as a document — never paste it as raw text.\n- `ig_audit_render` — Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. The report shows the profile + engagement, content mix, the top reels and carousels (with cover thumbnails, metrics, and why each worked), what works (best days/time/hooks), top hashtags, and a verdict with recommendations. The file carries the Loore branding so a forwarded report advertises the agent. Costs a flat 0.5 credits per call. Deliver the returned link to the user as a document — never paste it as raw text.\n- `carousel_prompt` — Return a ready-to-use prompt for a 6-slide Instagram carousel — YOUR OWN model generates the carousel from it (Loore spends no credits here). The prompt asks for JSON matching Loore's carousel shape, so the result pastes straight back in.\n- `miner_search` — Find what's going viral in an Instagram niche: start a background scan that mines top public creators and their best-performing reels for a niche you name, building the user's competitive base to analyze. Provide EXACTLY ONE of niche_query or run_id per call — never both, never neither. Pass niche_query (a niche or topic phrase, 3-100 chars) to START a scan — it returns a run id and a queued status (if a scan is already in progress you get THAT pending run back instead of a new one). Pass that run id back as run_id to CHECK the scan's progress until it is done. max_profiles bounds how many creators to enrich (integer 1-300, default 10; only valid with niche_query — pass the exact number the user asked for, e.g. 50). The per-scan cap is 300 on EVERY plan; the real ceiling is the user's daily research allowance (a big scan may exceed today's budget — the returned note says how many can be collected today, so scan in batches). A single scan of one niche often yields fewer than asked: to reach N, run FOLLOW-UP scans with DIFFERENT niche phrasings (synonyms, sub-niches, adjacent topics) — never repeat the identical niche_query expecting new results.\n- `miner_fired_reels` — List which of the user's tracked competitor reels fired recently — clips that suddenly outperformed their author's usual numbers — newest fire first. Each item carries the reel's link, author handle, play count, plays-per-hour velocity (null when the publish time is unknown), a short caption excerpt, and when it fired. limit caps the count (1-20, default 20). Read-only.\n- `miner_fired_posts` — List which of the user's tracked competitor POSTS fired recently — photos and carousels whose likes suddenly outran their author's usual numbers — newest fire first. Each item carries the post's link, author handle, likes, comments, whether it is a photo or a carousel, a short caption excerpt, and when it fired. Posts have no view count, so none is reported. Use miner_fired_reels for reels. limit caps the count (1-20, default 20). Read-only.\n- `miner_insights` — Read everything the user has mined about a niche. Returns the competitor roster (competitors: the actual mined accounts, biggest first — handle, follower count, name, category, verified, how many reels each appeared in, whether tracked), the top reels by play count (topReels: each with a link, author handle, plays/likes/comments, publish time, and caption excerpt), the base totals, the velocity outliers (reels far above their author's median), the busiest posting hours (in UTC), and the fastest-growing tracked accounts — all RAW numbers for your own agent to analyze. Call this after a miner_search scan reaches status 'done' to LIST the competitors and their best reels. roster_limit (1-300, optional, default 20) bounds how many competitor rows come back — leave it default for a normal look; pass a high value (up to 300) ONLY when building a full competitor REPORT that needs the whole base. No new mining and no credit spend — read-only.\n- `miner_track` — Add a competitor to the user's daily tracking so their new reels are watched for breakouts. Give an Instagram handle or profile link; the account must already be in the user's mined base (run a niche scan with miner_search first if it isn't). Respects the user's plan tracking cap and is reversible. Returns whether tracking is now on, or a reason it isn't (not in the base, or the tracking cap is reached).\n- `tracking_list` — List every Instagram account the user watches, with the plan's watch-slot header (used / max — max is null on an unlimited plan) and, per account, its handle, name, follower count, whether it is active or paused, whether the nightly auto-update is on, when it was last collected, and when it was added. Read this before adding or removing anything — it is the only honest source of how many slots are left. Takes no arguments and is FREE: read-only, no new data is collected.\n- `tracking_feed` — Read what the watched accounts have published, merged into one ranked feed. Each item carries the publication's link, the author's handle, whether it is a reel or a post, a caption excerpt, the publish time, plays/likes/comments, and how many times the author's OWN median it did (ratioToMedian — that is the breakout signal). filter picks the ranking: 'new' (default, newest first), 'views' (best-performing first across the whole feed) or 'anomalous' (only the breakouts, biggest ratio first). kind narrows to 'reel' or 'post'. limit sets the page size (1-50, default 12). When more rows exist the answer carries nextCursor — pass it back as cursor to get the next page, WITHOUT changing filter or kind (a cursor belongs to the ranking that produced it and is refused otherwise). FREE and read-only.\n- `tracking_add` — Put an Instagram account under WATCH and collect its recent publications into the user's tracking feed. Give a handle or a profile link. On success the account is watched and its recent publications are collected immediately, so tracking_feed has something to show at once. It does NOT keep updating by itself: the nightly auto-update is OFF for every new account and only its owner turns it on, because it charges credits every day it runs. Use tracking_refresh to pull new publications later. Costs 9 credits per account added — nothing is charged when the add is refused. The user's plan grants a fixed number of watch slots: when they are used up the answer is added=false with reason='no_slots' and the plan's real numbers, so tell the user to free a slot with tracking_remove or upgrade — never retry the same add. An account already watched answers added=false with reason='already_tracked'. Read the roster first with tracking_list.\n- `tracking_refresh` — Collect ONE watched account's newest publications right now. Give a handle or profile link of an account already watched. This is the ONLY way a watched account is updated unless its owner has switched the nightly auto-update on for it — that switch is OFF for every account by default, because it bills every day it runs. tracking_list reports it per account. Costs 1 credits per refresh — nothing is charged when it is refused. An account that is not watched answers refreshed=false with reason='not_tracked' (add it first); a paused one answers reason='paused' (resume it first). Read the result through tracking_feed.\n- `tracking_pause` — Park a watched account: it stops being refreshed (and stops costing anything) but KEEPS its watch slot and everything already collected stays in the feed. FREE and reversible with tracking_resume. Use tracking_remove instead when the user wants the slot back. An account that is not watched answers status='not_tracked'.\n- `tracking_resume` — Put a paused account back under watch so it is refreshed again. FREE. An account that is not watched answers status='not_tracked'.\n- `tracking_remove` — Stop watching an Instagram account and drop the publications collected for it. This is the ONLY way a watch slot is freed — pausing keeps the slot. FREE. Removing an account that is not watched answers removed=false with reason='not_tracked' rather than failing, so it is safe to repeat.\n- `tracking_add_batch` — Put a WHOLE LIST of Instagram accounts under watch in one call — the way to build a competitor base of hundreds of accounts instead of calling tracking_add once each (up to 500 accounts per list). Give handles or profile links in any mix. Returns a jobId immediately; it does NOT wait for the accounts to be collected, because each one is a chain of provider requests and a long list takes minutes. The answer carries estimatedSeconds — roughly how long the whole job will take — so tell the user that number rather than leaving them watching; a full list of 500 is several minutes, not seconds. Poll tracking_batch_status with the jobId to watch it finish and to read the verdict on EVERY account: added, already watched, or refused with a reason.  MONEY: 9 credits per account ACTUALLY added, and nothing else. An account already on the watch list is not charged again, an account there was no free slot for is not charged, and a failed add is not charged. Before the job starts, the whole list is checked against the balance — a list that does not fit is refused up front and spends nothing, so read the refusal and tell the user how many credits are missing rather than retrying.  SLOTS: the user's plan grants a fixed number of watch slots. A list longer than the free slots is NOT rejected wholesale — the accounts that fit are added and the rest come back one by one with reason='no_slots', so tell the user to free slots with tracking_remove or upgrade. Read tracking_list first if you need to know how many slots are left.  Sending the same list twice returns the SAME job instead of importing it a second time.\n- `tracking_batch_status` — Check a bulk watch-list import by its jobId. Answers how far it has got (added / skipped / failed / still pending), what it has REALLY cost so far in credits, and the verdict on every account in the list with a machine-readable reason: 'already_tracked' (it was on the list already — not charged), 'no_slots' (the plan is full — not charged), 'not_found' (the account does not exist or is closed), 'not_attempted' (the job stopped before reaching it). Poll until finished=true, then read the accounts array. FREE and read-only. A job that stopped early says so in stopReason — 'insufficient_credits' means top up and start a new batch with the accounts that were not attempted. 'authorization_exhausted' is DIFFERENT and does not mean an empty balance: the job spent everything it was cleared to spend when it started (the roster changed under it), so simply start a new batch with the accounts that were not attempted.\n- `kb_search` — Search the user's OWN knowledge base for passages relevant to a query, to ground your answer in their uploaded documents. Returns the top matching chunks (content + source file id + similarity distance). Read-only retrieval over the user's own data.\n- `reference_save` — Save the user's supplied images as visual reference assets — face photos, cover-style references, or a logo — to reuse in future image generations. Send 1-5 images per call as data: URLs under a single kind (face | style | logo); each is validated and stored (an identical image sent again is reused, not duplicated). Set replaceExisting to first clear all existing assets of that kind. Returns a per-image outcome (saved | reused | rejected) plus the active counts per kind afterwards.\n- `reference_list` — List the user's stored visual reference assets (id, kind, label, dimensions, size, created/last-used timestamps), newest first. Optionally narrow to one kind (face | style | logo). Read-only.\n- `reference_delete` — Delete the user's stored reference assets. Pass EXACTLY ONE selector per call: id (one asset), ids (a batch of up to 50 asset ids in ONE call), kind (every stored asset of that kind: face | style | logo), or all=true (every stored reference asset). When the user asks to delete several or ALL references («удали все»), make ONE call with ids, kind, or all — NEVER loop one-by-one with id. Selector choice: the user points at specific listed items they can see («удали эти», «все 9») → ids from the listing; the user means the current category («удали все лица») → kind; all=true ONLY on explicit GLOBAL intent covering every kind («удали вообще все референсы»). Idempotent: an unknown, foreign, or already-deleted id is reported as deleted=false, never an error. Returns exact counts (deleted / notFound, per-id results for ids) plus the remaining active counts per kind, so report the resulting state precisely.\n- `artifact_list` — List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the reports, data exports and downloaded media their jobs produced. Each item carries its link, kind (cover | carousel_slide | report | batch_export | ig_export | ig_media_file), title, the group id that ties one batch together, its position within that group, and when it was created. It also says how the link must be fetched (`authMode`: `public` — open to anyone holding it; `owner` — only the owner, with this same credential, so never pass it on as a share link) and when the file stops being kept (`expiresAt`, null = kept indefinitely). Narrow to one kind with `kind`, page with `limit` (max 50) and the returned `cursor`. Read-only.\n- `library_save_search` — Keep a search on the user's own library shelf so they can return to it later: what was searched (accounts, reels, posts or hashtags) and the exact query. Saving the same query again does not duplicate it — it counts the revisit. Optionally file it under a folder name such as a niche; the folder is created on first use.\n- `library_save_item` — Put one thing aside on the user's library shelf: a profile, a reel, a post or a hashtag. Pass the handle, the shortcode or the hashtag as the reference. Add a title the user will recognise and a note on why it was kept. Keeping the same thing again refreshes it instead of duplicating it.\n- `library_list` — Read the user's own library: the searches they kept (with how often they returned to each one and when it last ran) and the profiles, reels, posts and hashtags they put aside with their notes. Use this before searching anew — the user may already have what they need. Read-only.\n- `skill_list` — List the skills the user can run — reusable, named recipes over this same tool surface. Each entry carries its slug, name, a short line on WHAT it does and WHEN to use it, the inputs to gather, and a `card`: the full RECIPE (`card.recipe` — which of these tools it calls, in order, with which arguments and what each step yields), the FORM of the result (`card.returns`), the MAX credits one run may charge (`card.creditsMax`) and a rough duration. So you can judge a skill, and reproduce it call by call with your own parameters, WITHOUT running it. Read-only, FREE.\n- `skill_run` — Run one of the user's skills by its slug, passing the inputs it declared. Starts an async run and returns a runId + status (queued); poll skill-run-status for the result (which may carry generated media). Runs are idempotent: over MCP a call with identical slug+inputs replays the SAME run — pass a new `nonce` to force a fresh run of the same skill with the same inputs.\n- `skill_run_status` — Check a skill run by its runId. Returns the run status (queued | running | done | failed | partial) and, once done or partial, the result — media artifact links plus text outputs. `done` means the run finished AND its deliverable holds up: the artifact is reachable and no template substitution was left unresolved. A run whose steps all returned but whose deliverable did not settles as `partial` with an `incomplete` reason (artifact_missing | artifact_unreachable | unresolved_placeholder) — the completed outputs are still returned. NOTE that an EMPTY result is not itself a failure: Loore returns data, not conclusions, so a thin report about an account with little to say is a legitimate `done`.\n- `skill_create` — Create a new custom skill for the key owner from a config: a name, a url-safe slug (its /command), a one-line description, the inputs to gather (JSON-schema object), the pipeline steps (each an id + an allowlisted stage + a templated input), and the output projection. Validated against the SAME schema, allowlist and collision rules the runner enforces, so anything created is runnable. On success returns the created skill summary; on a validation/collision problem returns a structured error (in the 200 body) to correct and retry. Returns [] semantics — a domain error — when the skills system is disabled.\n- `get_credit_balance` — Check how many CREDITS the user has left before running a priced tool. FREE — this call itself costs nothing and changes nothing. Returns creditsRemaining (everything still spendable: unused plan allowance plus purchased wallet), creditsIncluded (the plan's grant for the current period), creditsUsed (spent so far this period), and the period boundaries (the billing period the user PAID for — it starts on their charge date, not the 1st). All figures are in credits, the same unit the priced tools report as creditsCharged (e.g. a quick reel analysis is 4 credits, a deep one 6, a render or media download 0.5). Use it when the user asks about their balance; to price a run BEFORE starting it — and learn whether it fits — ask estimate_credit_cost, which is free too.\n- `estimate_credit_cost` — Ask what an action WOULD cost before running it, and whether it fits the balance. FREE — this call itself costs nothing, starts nothing and reserves nothing. Give it the action and how many units of it you intend to run; it answers the price of ONE unit, the estimated total, the credits remaining right now, whether the run fits, and what would be left afterwards. All figures are in credits, the same unit the priced tools report as creditsCharged and get_credit_balance reports as creditsRemaining. Use it before a batch of single-tool calls (40 reel analyses, 12 downloads) — for a BATCH JOB, ask ig_batch_quote instead, which prices a job by its subject list. Actions: analyze_reel_quick | analyze_reel_deep | reel_storyboard | reel_reference_compare | ig_analytics_express | ig_analytics_full | download_instagram_media | download_instagram_story | report_render | ig_audit_render | tracking_add | tracking_refresh | ig_followers_sample | ig_post_engagement | ig_highlights | ig_request. An action whose real charge can differ from the forecast (a private reel is never charged, a heavy Instagram endpoint bills as several requests) says so in `note` — read it before treating the total as exact.\n- `get_spend_report` — See WHERE the user's credits went during the current billing period. FREE — this call itself costs nothing and changes nothing. Returns the period totals (creditsSpent net of refunds, how many operations ran, how many succeeded, creditsRefunded for the ones that failed, and the average per day), a breakdown by kind of work (account analysis, reel analysis, tracking, storyboard, download, other), a per-day series, and the most recent operations with what was requested, which account or reel it was about, and which client asked (this key, an MCP client, or the cabinet). Optionally narrow to one UTC day with `day`. All figures are in credits, the same unit the priced tools report as creditsDebited. DAYS ARE UTC CALENDAR DAYS — every bucket, the `day` filter and the daily series use UTC, not the caller's local zone and not the server's. The period totals reconcile exactly with the series: creditsSpent equals the sum of the daily credits for the same period, so an agent can add up the days and get the headline. A day can be NEGATIVE when a refund lands later than the charge it reverses. Figures are read live at call time — an operation appears here as soon as it is billed, which is after the work succeeds, so a still-running call is not yet counted. Use it to explain a bill, to find what is draining the budget, or to check spend before starting another batch.\n- `get_partner_summary` — Get the caller's PARTNER-PROGRAM standing and running totals: status, commission percent, clicks on their referral links, referred registrations, paying customers, and the money — accrued, paid out, and still owed (all in kopecks, currency RUB). FREE — this call costs nothing and changes nothing. Returns isPartner=false for an account that is not in the program. Payouts are MANUAL: an operator transfers the money and records it; nothing here can request or trigger a payout.\n- `list_partner_codes` — List the caller's own PARTNER promo codes and referral links — the code text, its discount, how many people redeemed it, and for each link the full shareable URL plus its clicks and referred registrations. FREE. Use it when the user asks «what's my link» or wants something to post. Returns empty lists for an account that is not in the partner program.\n- `list_partner_earnings` — List the caller's PARTNER commission history, newest first, paginated. Each row carries a SIGNED amount in kopecks — positive is a commission booked on a customer's payment, negative is that commission taken back after a refund — plus the payment it was computed from, the rate applied, and an OPAQUE reference for the referred customer (never their identity). FREE. Pass `cursor` from the previous response to continue; `limit` defaults to 20, max 100.\n- `list_partner_payouts` — List the MANUAL payouts recorded for the caller as a partner, newest first, paginated: amount in kopecks, how it was sent, the operator's transfer reference and when. FREE. These are records of transfers a human already made — nothing in the API moves money. Pass `cursor` to continue; `limit` defaults to 20, max 100.",
         "tags": [
           "MCP"
         ],
