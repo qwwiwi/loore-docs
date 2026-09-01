@@ -13,7 +13,7 @@ description: "Полный список инструментов, которые
 
 | Инструмент (MCP) | REST | Что делает |
 | --- | --- | --- |
-| `analyze_reel` | `POST /v1/analyze-reel` | Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES as timecoded images, each labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. |
+| `analyze_reel` | `POST /v1/analyze-reel` | Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES, each timecoded and labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. |
 | `artifact_list` | `POST /v1/artifact-list` | List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the reports, data exports and downloaded media their jobs produced. |
 | `carousel_prompt` | `POST /v1/carousel-prompt` | Return a ready-to-use prompt for a 6-slide Instagram carousel — YOUR OWN model generates the carousel from it (Loore spends no credits here). |
 | `download_instagram_media` | `POST /v1/download-instagram-media` | Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. |
