@@ -13,7 +13,7 @@ description: "Полный список инструментов, которые
 
 | Инструмент (MCP) | REST | Что делает |
 | --- | --- | --- |
-| `analyze_reel` | `POST /v1/analyze-reel` | Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES, each timecoded and labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. |
+| `analyze_reel` | `POST /v1/analyze-reel` | Pull the RAW data of ONE Instagram reel by its link: timecoded transcript, the WHOLE caption (`reel.caption`, up to 2200 characters with its line breaks — no ig_media call is needed for it), metrics (plays/likes/comments), the author-baseline outlier score vs their own median, and — on depth=deep — the sampled video FRAMES, each timecoded and labelled with the part of the reel it covers (hook/body/cta), for YOUR OWN agent to read visually and break down. |
 | `artifact_list` | `POST /v1/artifact-list` | List the images the user has generated (covers and carousel slides), newest first, for their gallery, alongside the reports, data exports and downloaded media their jobs produced. |
 | `carousel_prompt` | `POST /v1/carousel-prompt` | Return a ready-to-use prompt for a 6-slide Instagram carousel — YOUR OWN model generates the carousel from it (Loore spends no credits here). |
 | `download_instagram_media` | `POST /v1/download-instagram-media` | Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. |
@@ -23,7 +23,7 @@ description: "Полный список инструментов, которые
 | `get_partner_summary` | `POST /v1/partner-summary` | Get the caller's PARTNER-PROGRAM standing and running totals: status, commission percent, clicks on their referral links, referred registrations, paying customers, and the money — accrued, paid out, and still owed (all in kopecks, currency RUB). |
 | `get_spend_report` | `POST /v1/spend-report` | See WHERE the user's credits went during the current billing period. |
 | `ig_analytics` | `POST /v1/ig-analytics` | Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). |
-| `ig_analytics_read` | `GET /v1/ig-analytics/{id}` | Read a single Instagram analysis result by id. |
+| `ig_analytics_read` | `GET /v1/ig-analytics/{id}` | Read a single Instagram analysis by id — the STORED analysis: the same `metrics` blob `ig_analytics` returned when it ran (including `metrics.topRankedReels`), with `handle`, `status`, `reels_analyzed`, `posts_analyzed`, `period` and `coverage`, plus `createdAt`. |
 | `ig_audio` | `POST /v1/ig-audio` | Read ONE Instagram sound: its title, artist, duration, how many reels use it and whether it is trending right now. |
 | `ig_audio_media` | `POST /v1/ig-audio-media` | List the publications using ONE sound — the way to see a trend spread. |
 | `ig_audit_render` | `POST /v1/ig-audit-render` | Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. |
@@ -59,7 +59,7 @@ description: "Полный список инструментов, которые
 | `library_list` | `POST /v1/library-list` | Read the user's own library: the searches they kept (with how often they returned to each one and when it last ran) and the profiles, reels, posts and hashtags they put aside with their notes. |
 | `library_save_item` | `POST /v1/library-save-item` | Put one thing aside on the user's library shelf: a profile, a reel, a post or a hashtag. |
 | `library_save_search` | `POST /v1/library-save-search` | Keep a search on the user's own library shelf so they can return to it later: what was searched (accounts, reels, posts or hashtags) and the exact query. |
-| `list_partner_codes` | `POST /v1/partner-codes` | List the caller's own PARTNER promo codes and referral links — the code text, its discount, how many people redeemed it, and for each link the full shareable URL plus its clicks and referred registrations. |
+| `list_partner_codes` | `POST /v1/partner-codes` | List the caller's own PARTNER promo codes and referral links. |
 | `list_partner_earnings` | `POST /v1/partner-earnings` | List the caller's PARTNER commission history, newest first, paginated. |
 | `list_partner_payouts` | `POST /v1/partner-payouts` | List the MANUAL payouts recorded for the caller as a partner, newest first, paginated: amount in kopecks, how it was sent, the operator's transfer reference and when. |
 | `mcp_json_rpc` | `POST /mcp` | Model Context Protocol (MCP) JSON-RPC 2.0 endpoint — the URL you paste into Claude/Codex. |
