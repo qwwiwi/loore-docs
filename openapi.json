@@ -3,7 +3,7 @@
   "info": {
     "title": "Loore Public API",
     "version": "1.1.0",
-    "description": "START WITH `reel_storyboard` (the first tool in the catalogue). It cuts an Instagram reel into timecoded FRAMES and returns them as image links, so YOUR AGENT SEES THE REEL — hook, body and closing frames at known timestamps, flagged on shot changes — and decides from what is actually on screen instead of guessing from a text description of a video it never watched. `reel_reference_compare` does the same across several reels and returns an addressed evidence ledger. We measure and hand back the evidence; your agent draws the conclusions — WE DO NOT WRITE YOUR SCENARIOS OR TELEPROMPTER TEXT, and generate no prose for you at all. (Producing the data uses machines where it must — speech is transcribed by a speech-to-text model — but the words you publish are never ours.) READING ORDER: `paths` is a JSON object, so its key order is not a contract. The catalogue order is published as data in `x-loore-catalogue-order` at this document's root, and on each operation as `x-displayOrder`. Sort by those, never by key iteration. SURFACE: 73 tools are callable over MCP (`tools/call`). This document lists 75 REST operations: those same 73 tool endpoints, plus 1 read that exists only over REST (`GET /v1/ig-analytics/{id}` — over MCP an analysis is read through the `ig_analytics` tool) and the 1 JSON-RPC endpoint (`/mcp`), which carries the tools rather than being one. The same split is machine-readable at the document's top level under `x-loore-surface`. REFERENCE: https://loore.ai/docs (human) — https://mcp.loore.ai/openapi.json (this document). The Loore public API. Every call is authenticated with a Bearer API key (create one in the account's «API и MCP» section, /cabinet/mcp) and scoped to the key owner's account. LLM-spending stages meter the owner's credits exactly like the in-app flow. Responses use the shared envelope `{ status, error?, details?, result? }`. BILLING (contract version 3): a result that reports a charge carries SIX fields, the same six on every paid tool. `nominalCredits` is what the operation costs by the price list; `creditsDebited` is what ACTUALLY left the balance; `cacheHit` says whether the deliverable was served without paying the provider again; `idempotentReplay` says whether this call is an idempotent repeat of an operation already charged in the current paid period (the debit is 0 because the EARLIER call paid — repeats charge again once the subscription's paid period rolls over); `operationId` is a stable opaque id that two retries of one logical call share (the same id appears on the matching row in `get_spend_report`, so a receipt can be lined up against the spend report); and `billingContractVersion: 3` with `creditUnit: \"credit\"` declares the contract and the unit. All figures are in CREDITS, fractions allowed (a render or media download is 0.5). A CACHE HIT AND A DEDUPLICATED REPEAT REPORT `creditsDebited: 0` while `nominalCredits` keeps the price — that is the normal, expected shape, not an error. A deduplicated repeat additionally carries `idempotentReplay: true`; a replayed `Idempotency-Key` result is one of these: the original call was charged, the replay is not. CHANGED IN v3: `creditsCharged` is still present and is now an EXACT ALIAS of `creditsDebited` — the amount actually taken. Under version 2 a few tools reported their list price under that name even when nothing was debited, so the same field meant different things on different tools. It was kept rather than removed so no client reads an absent field as zero; the version number moving from 2 to 3 is the signal to re-read this list. If you budget or reconcile against a single number, use `creditsDebited`. Markers declare the fields THIS contract produces; they are not a claim about other numbers in the payload. A response WITHOUT them reports no charge of ours — including a replayed result stored before this contract, which is returned in its original form. Call `POST /v1/billing-balance` (free) for the remaining balance in the same unit. ERRORS: both doors return the same failure envelope. Over REST it is the response body; over MCP it is the `tools/call` result with `isError: true` (serialized in the text block and repeated in `structuredContent`). `details` carries the cause whenever the server knows it — for `invalid_request` the exact field paths that failed validation. `ApiErrorEnvelope.error` lists EVERY code either door can send — parse against that enum, not against the response list of the operation you happen to be calling. METHOD: `method_not_allowed` (405) is the one code no operation below documents, because no operation can produce it — an operation IS one path-and-method pair, and a path answers 405 only to the verbs it does NOT serve. Send a real `/v1` path the wrong verb and you get it: The endpoint exists but not for this HTTP method; the `Allow` header lists the methods it serves. `details.allow` repeats that list as data. PAGINATION: an opaque `cursor` is valid for 6 hours after it is issued; past that the call is refused with `cursor_expired` and the walk restarts from page one without a cursor. IDEMPOTENCY: send `Idempotency-Key` on any expensive call to make a retry replay instead of re-run. The stages whose key IS their exactly-once arbiter (`skill-run`, `ig-audit-render`, `ig-batch-create`) no longer REQUIRE the header: without one the server derives a stable key from (account, stage, body), which is exactly what the MCP door does, so the same body is accepted on both doors. Send your own key when you want a genuinely fresh run. KEY LENGTH: the header is accepted up to 256 characters. A longer one is DROPPED, and on those three stages the server then derives its own key — the call still succeeds and is still deduplicated, but your key is no longer the arbiter. Keep it within 256 characters to stay in control of it."
+    "description": "START WITH `reel_storyboard` (the first tool in the catalogue). It cuts an Instagram reel into timecoded FRAMES and returns them as image links, so YOUR AGENT SEES THE REEL — hook, body and closing frames at known timestamps, flagged on shot changes — and decides from what is actually on screen instead of guessing from a text description of a video it never watched. `reel_reference_compare` does the same across several reels and returns an addressed evidence ledger. We measure and hand back the evidence; your agent draws the conclusions — WE DO NOT WRITE YOUR SCENARIOS OR TELEPROMPTER TEXT, and generate no prose for you at all. (Producing the data uses machines where it must — speech is transcribed by a speech-to-text model — but the words you publish are never ours.) READING ORDER: `paths` is a JSON object, so its key order is not a contract. The catalogue order is published as data in `x-loore-catalogue-order` at this document's root, and on each operation as `x-displayOrder`. Sort by those, never by key iteration. SURFACE: 73 tools are callable over MCP (`tools/call`). This document lists 75 REST operations: those same 73 tool endpoints, plus 1 read that exists only over REST (`GET /v1/ig-analytics/{id}` — over MCP an analysis is read through the `ig_analytics` tool) and the 1 JSON-RPC endpoint (`/mcp`), which carries the tools rather than being one. The same split is machine-readable at the document's top level under `x-loore-surface`. REFERENCE: https://loore.ai/docs (human) — https://mcp.loore.ai/openapi.json (this document). STATUS: https://status.loore.ai/api/public/status.json — one JSON document, no key, no headers, readable from anywhere including a browser tab. It carries an overall verdict and every probed component with its latency and uptime, and it runs on a SEPARATE machine outside this deployment, so it answers when we do not. It goes loudly stale: a snapshot older than five minutes answers 503 with `overall_status: \"unknown\"` and `stale: true`, so a frozen file can never report health through an outage. Human page: https://status.loore.ai. The Loore public API. Every call is authenticated with a Bearer API key (create one in the account's «API и MCP» section, /cabinet/mcp) and scoped to the key owner's account. LLM-spending stages meter the owner's credits exactly like the in-app flow. Responses use the shared envelope `{ status, error?, details?, result? }`. BILLING (contract version 3): a result that reports a charge carries SIX fields, the same six on every paid tool. `nominalCredits` is what the operation costs by the price list; `creditsDebited` is what ACTUALLY left the balance; `cacheHit` says whether the deliverable was served without paying the provider again; `idempotentReplay` says whether this call is an idempotent repeat of an operation already charged in the current paid period (the debit is 0 because the EARLIER call paid — repeats charge again once the subscription's paid period rolls over); `operationId` is a stable opaque id that two retries of one logical call share (the same id appears on the matching row in `get_spend_report`, so a receipt can be lined up against the spend report); and `billingContractVersion: 3` with `creditUnit: \"credit\"` declares the contract and the unit. All figures are in CREDITS, fractions allowed (a render or media download is 0.5). A CACHE HIT AND A DEDUPLICATED REPEAT REPORT `creditsDebited: 0` while `nominalCredits` keeps the price — that is the normal, expected shape, not an error. A deduplicated repeat additionally carries `idempotentReplay: true`; a replayed `Idempotency-Key` result is one of these: the original call was charged, the replay is not. CHANGED IN v3: `creditsCharged` is still present and is now an EXACT ALIAS of `creditsDebited` — the amount actually taken. Under version 2 a few tools reported their list price under that name even when nothing was debited, so the same field meant different things on different tools. It was kept rather than removed so no client reads an absent field as zero; the version number moving from 2 to 3 is the signal to re-read this list. If you budget or reconcile against a single number, use `creditsDebited`. Markers declare the fields THIS contract produces; they are not a claim about other numbers in the payload. A response WITHOUT them reports no charge of ours — including a replayed result stored before this contract, which is returned in its original form. Call `POST /v1/billing-balance` (free) for the remaining balance in the same unit. ERRORS: both doors return the same failure envelope. Over REST it is the response body; over MCP it is the `tools/call` result with `isError: true` (serialized in the text block and repeated in `structuredContent`). `details` carries the cause whenever the server knows it — for `invalid_request` the exact field paths that failed validation. `ApiErrorEnvelope.error` lists EVERY code either door can send — parse against that enum, not against the response list of the operation you happen to be calling. METHOD: `method_not_allowed` (405) is the one code no operation below documents, because no operation can produce it — an operation IS one path-and-method pair, and a path answers 405 only to the verbs it does NOT serve. Send a real `/v1` path the wrong verb and you get it: The endpoint exists but not for this HTTP method; the `Allow` header lists the methods it serves. `details.allow` repeats that list as data. PAGINATION: an opaque `cursor` is valid for 6 hours after it is issued; past that the call is refused with `cursor_expired` and the walk restarts from page one without a cursor. IDEMPOTENCY: send `Idempotency-Key` on any expensive call to make a retry replay instead of re-run. The stages whose key IS their exactly-once arbiter (`skill-run`, `ig-audit-render`, `ig-batch-create`) no longer REQUIRE the header: without one the server derives a stable key from (account, stage, body), which is exactly what the MCP door does, so the same body is accepted on both doors. Send your own key when you want a genuinely fresh run. KEY LENGTH: the header is accepted up to 256 characters. A longer one is DROPPED, and on those three stages the server then derives its own key — the call still succeeds and is still deduplicated, but your key is no longer the arbiter. Keep it within 256 characters to stay in control of it."
   },
   "x-loore-surface": {
     "mcpTools": 73,
@@ -229,7 +229,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -239,7 +239,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -249,7 +249,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -400,7 +400,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -410,7 +410,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -420,7 +420,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -839,7 +839,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -849,7 +849,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -859,7 +859,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -995,7 +995,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1005,7 +1005,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1015,7 +1015,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1143,7 +1143,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1153,7 +1153,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1163,7 +1163,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1291,7 +1291,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1301,7 +1301,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1311,7 +1311,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1439,7 +1439,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1449,7 +1449,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1459,7 +1459,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1587,7 +1587,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1597,7 +1597,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1607,7 +1607,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1740,7 +1740,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1750,7 +1750,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1760,7 +1760,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1892,7 +1892,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1902,7 +1902,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1912,7 +1912,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2130,7 +2130,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2140,7 +2140,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2150,7 +2150,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2484,7 +2484,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2494,7 +2494,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2504,7 +2504,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2838,7 +2838,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2848,7 +2848,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2858,7 +2858,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3153,7 +3153,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3163,7 +3163,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3173,7 +3173,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3423,7 +3423,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3433,7 +3433,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3443,7 +3443,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3705,7 +3705,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3715,7 +3715,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3725,7 +3725,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3878,7 +3878,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3888,7 +3888,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3898,7 +3898,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4039,7 +4039,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4049,7 +4049,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4059,7 +4059,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4187,7 +4187,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4197,7 +4197,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4207,7 +4207,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4343,7 +4343,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4353,7 +4353,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4363,7 +4363,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4491,7 +4491,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4501,7 +4501,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4511,7 +4511,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4639,7 +4639,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4649,7 +4649,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4659,7 +4659,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4996,7 +4996,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5006,7 +5006,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5016,7 +5016,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5353,7 +5353,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5363,7 +5363,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5373,7 +5373,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5806,7 +5806,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5816,7 +5816,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5826,7 +5826,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6174,7 +6174,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6184,7 +6184,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6194,7 +6194,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6540,7 +6540,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6550,7 +6550,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6560,7 +6560,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6776,7 +6776,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6786,7 +6786,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6796,7 +6796,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7130,7 +7130,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7140,7 +7140,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7150,7 +7150,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7376,7 +7376,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7386,7 +7386,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7396,7 +7396,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7603,7 +7603,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7613,7 +7613,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7623,7 +7623,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7849,7 +7849,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7859,7 +7859,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7869,7 +7869,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8103,7 +8103,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8113,7 +8113,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8123,7 +8123,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8356,7 +8356,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8366,7 +8366,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8376,7 +8376,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8504,7 +8504,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8514,7 +8514,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8524,7 +8524,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8652,7 +8652,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8662,7 +8662,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8672,7 +8672,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8816,7 +8816,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8826,7 +8826,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8836,7 +8836,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8989,7 +8989,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8999,7 +8999,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9009,7 +9009,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9137,7 +9137,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9147,7 +9147,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9157,7 +9157,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9303,7 +9303,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9313,7 +9313,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9323,7 +9323,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9457,7 +9457,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9467,7 +9467,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9477,7 +9477,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9603,7 +9603,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9613,7 +9613,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9623,7 +9623,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9749,7 +9749,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9759,7 +9759,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9769,7 +9769,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9895,7 +9895,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9905,7 +9905,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9915,7 +9915,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10043,7 +10043,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10053,7 +10053,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10063,7 +10063,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10184,7 +10184,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10194,7 +10194,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10204,7 +10204,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10342,7 +10342,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10352,7 +10352,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10362,7 +10362,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10494,7 +10494,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10504,7 +10504,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10514,7 +10514,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10642,7 +10642,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10652,7 +10652,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10662,7 +10662,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10790,7 +10790,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10800,7 +10800,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10810,7 +10810,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10938,7 +10938,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10948,7 +10948,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10958,7 +10958,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11086,7 +11086,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11096,7 +11096,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11106,7 +11106,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11238,7 +11238,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11248,7 +11248,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11258,7 +11258,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11386,7 +11386,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11396,7 +11396,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11406,7 +11406,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11538,7 +11538,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11548,7 +11548,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11558,7 +11558,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11695,7 +11695,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11705,7 +11705,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11715,7 +11715,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11841,7 +11841,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11851,7 +11851,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11861,7 +11861,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12002,7 +12002,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12012,7 +12012,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12022,7 +12022,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12164,7 +12164,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12174,7 +12174,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12184,7 +12184,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12325,7 +12325,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12335,7 +12335,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12345,7 +12345,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12490,7 +12490,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12500,7 +12500,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12510,7 +12510,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12640,7 +12640,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12650,7 +12650,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12660,7 +12660,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12781,7 +12781,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12791,7 +12791,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12801,7 +12801,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12937,7 +12937,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12947,7 +12947,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12957,7 +12957,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13085,7 +13085,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13095,7 +13095,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13105,7 +13105,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13257,7 +13257,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13267,7 +13267,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13277,7 +13277,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13398,7 +13398,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13408,7 +13408,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13418,7 +13418,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13570,7 +13570,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13580,7 +13580,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13590,7 +13590,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13720,7 +13720,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13730,7 +13730,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13740,7 +13740,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13861,7 +13861,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13871,7 +13871,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13881,7 +13881,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14002,7 +14002,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14012,7 +14012,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14022,7 +14022,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14152,7 +14152,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14162,7 +14162,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14172,7 +14172,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14302,7 +14302,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14312,7 +14312,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14322,7 +14322,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14430,7 +14430,7 @@
             }
           },
           "500": {
-            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone).",
+            "description": "Unexpected server error (`server_error`), or a result that could not be represented on the wire (`serialization_error` — `details.path` names the field when it can be located; a payload that cannot even be walked reports the reason alone). `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14440,7 +14440,7 @@
             }
           },
           "502": {
-            "description": "Stage has no backing implementation yet.",
+            "description": "Stage has no backing implementation yet. `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14450,7 +14450,7 @@
             }
           },
           "503": {
-            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable.",
+            "description": "The external data provider is unavailable (upstream fault, timeout, or credential refused). Retriable, and `details.status_page` points at our live status, hosted off this deployment.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14570,7 +14570,7 @@
             ]
           },
           "details": {
-            "description": "Structured detail, present whenever the server knows the cause. For invalid_request it is `{ issues: [{ path, message, code }] }` addressing the exact fields that failed (`path` is dotted into the request body, e.g. `scenario.hook.line`); for scope_forbidden and stage_unavailable it is `{ stage }`; for cursor_expired it is `{ cursorTtlSeconds, recovery }`; for serialization_error it is `{ reason, path? }` (`path` is dotted into the RESULT and is present only when the offending field could be located); for method_not_allowed it is `{ allow: string[] }`, the same list the `Allow` header carries."
+            "description": "Structured detail, present whenever the server knows the cause. For invalid_request it is `{ issues: [{ path, message, code }] }` addressing the exact fields that failed (`path` is dotted into the request body, e.g. `scenario.hook.line`); for scope_forbidden and stage_unavailable it is `{ stage }`; for cursor_expired it is `{ cursorTtlSeconds, recovery }`; for serialization_error it is `{ reason, path? }` (`path` is dotted into the RESULT and is present only when the offending field could be located); for method_not_allowed it is `{ allow: string[] }`, the same list the `Allow` header carries. A retriable failure additionally carries `retriable: true`; a failure that is OURS (upstream_unavailable, stage_unavailable, serialization_error, server_error) additionally carries `status_page` — the machine status document, hosted OUTSIDE this deployment, so it answers when we do not."
           }
         },
         "required": [
