@@ -31,6 +31,12 @@
             ]
           },
           {
+            "group": "Гайды",
+            "pages": [
+              "guides/storyboard"
+            ]
+          },
+          {
             "group": "Как это устроено",
             "pages": [
               "mcp/tools",
