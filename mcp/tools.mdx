@@ -18,8 +18,8 @@ description: "Полный список инструментов, которые
 | `carousel_prompt` | `POST /v1/carousel-prompt` | Return a ready-to-use prompt for a 6-slide Instagram carousel — YOUR OWN model generates the carousel from it (Loore spends no credits here). |
 | `download_instagram_media` | `POST /v1/download-instagram-media` | Download and SEND the actual video/photo FILE of an Instagram post or reel to the user in this chat. |
 | `download_instagram_story` | `POST /v1/download-instagram-story` | Download and SEND the actual video/photo FILE of an Instagram STORY to the user in this chat. |
-| `estimate_credit_cost` | `POST /v1/billing-estimate` | Ask what an action WOULD cost before running it, and whether it fits the balance. |
-| `get_credit_balance` | `POST /v1/billing-balance` | Check how many CREDITS the user has left before running a priced tool. |
+| `estimate_credit_cost` | `POST /v1/billing-estimate` | Price an action and say whether it fits the balance, WITHOUT running it — an OPTIONAL helper for when the user asks what something would cost. |
+| `get_credit_balance` | `POST /v1/billing-balance` | Read how many CREDITS the user has left — for when the user asks about their balance. |
 | `get_partner_summary` | `POST /v1/partner-summary` | Get the caller's PARTNER-PROGRAM standing and running totals: status, commission percent, clicks on their referral links, referred registrations, paying customers, and the money — accrued, paid out, and still owed (all in kopecks, currency RUB). |
 | `get_spend_report` | `POST /v1/spend-report` | See WHERE the user's credits went during the current billing period. |
 | `ig_analytics` | `POST /v1/ig-analytics` | Run an Instagram analysis for a public handle and return its RAW computed metrics (profile, engagement, content mix, top reels/carousels, posting windows, hashtags). |
@@ -29,7 +29,7 @@ description: "Полный список инструментов, которые
 | `ig_audit_render` | `POST /v1/ig-audit-render` | Turn a finished Instagram account analysis into a BRANDED, ready-to-send audit report FILE (HTML) and return its link. |
 | `ig_batch_cancel` | `POST /v1/ig-batch-cancel` | Stop a batch job that is still queued or running. |
 | `ig_batch_create` | `POST /v1/ig-batch-create` | Start ONE background job that runs the same Instagram read over a whole list of subjects — the way to import hundreds of accounts or posts in a single call (up to 1000 subjects). |
-| `ig_batch_quote` | `POST /v1/ig-batch-quote` | Ask what a batch job WOULD cost and roughly how long it would take, WITHOUT starting it. |
+| `ig_batch_quote` | `POST /v1/ig-batch-quote` | Price a batch job and estimate its duration WITHOUT starting it — an OPTIONAL helper for when the user asks what a job would cost. |
 | `ig_batch_result` | `POST /v1/ig-batch-result` | Collect a batch job's data. |
 | `ig_batch_retry` | `POST /v1/ig-batch-retry` | Re-attempt ONLY the subjects of a finished job that did not complete — the failed ones plus any left over from a cancel or a stop. |
 | `ig_batch_status` | `POST /v1/ig-batch-status` | Check a batch job by its jobId. |
